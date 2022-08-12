@@ -14,8 +14,8 @@
             filePath = "Shared/Renderer.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "125"
-            endingLineNumber = "125"
+            startingLineNumber = "177"
+            endingLineNumber = "177"
             landmarkName = "render(scene:)"
             landmarkType = "7">
          </BreakpointContent>

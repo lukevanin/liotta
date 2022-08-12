@@ -16,13 +16,6 @@ typealias Vector3 = SIMD3<Component>
 typealias Color = Vector3
 
 
-//struct Color {
-//    var r: Component
-//    var g: Component
-//    var b: Component
-//}
-
-
 struct Ray {
     
     var origin: Vector3
@@ -43,21 +36,77 @@ struct Ray {
 }
 
 
-final class RenderScene {
+struct HitRecord {
+    let t: Double
+    let p: Vector3
+    let normal: Vector3
+}
+
+
+protocol Hitable {
+    func hit(ray: Ray, tMin: Double, tMax: Double) -> HitRecord?
+}
+
+
+struct Sphere: Hitable {
+    var center: Vector3
+    var radius: Double
     
-    func hitSphere(center: Vector3, radius: Double, ray: Ray) -> Double {
+    func hit(ray: Ray, tMin: Double, tMax: Double) -> HitRecord? {
         let oc: Vector3 = ray.origin - center
         let a = simd_dot(ray.direction, ray.direction)
-        let b = 2.0 * simd_dot(oc, ray.direction)
+        let b = simd_dot(oc, ray.direction)
         let c = simd_dot(oc, oc) - (radius * radius)
-        let discriminant = (b * b) - (4 * a * c)
-        if discriminant < 0 {
-            return -1
+        let discriminant = (b * b) - (a * c)
+        if discriminant > 0 {
+            let s = sqrt(discriminant)
+            var temp: Double
+            
+            temp = (-b - s) / a
+            if temp > tMin && temp < tMax {
+                let p = ray.point(at: temp)
+                return HitRecord(
+                    t: temp,
+                    p: p,
+                    normal: simd_normalize(p - center)
+                )
+            }
+            
+            temp = (-b + s) / a
+            if temp > tMin && temp < tMax {
+                let p = ray.point(at: temp)
+                return HitRecord(
+                    t: temp,
+                    p: p,
+                    normal: simd_normalize(p - center)
+                )
+            }
         }
-        else {
-            return (-b - sqrt(discriminant)) / (2 * a)
-        }
+        
+        return nil
     }
+}
+
+
+struct HitableList: Hitable {
+    
+    var items = [Hitable]()
+    
+    func hit(ray: Ray, tMin: Double, tMax: Double) -> HitRecord? {
+        var output: HitRecord?
+        var closest = tMax
+        for item in items {
+            if let hit = item.hit(ray: ray, tMin: tMin, tMax: closest) {
+                closest = hit.t
+                output = hit
+            }
+        }
+        return output
+    }
+}
+
+
+final class RenderScene {
     
     func sky(ray: Ray) -> Color {
         let colorA = Color(x: 1.0, y: 1.0, z: 1.0)
@@ -67,14 +116,13 @@ final class RenderScene {
         return ((1 - t) * colorA) + (t * colorB)
     }
     
-    func color(ray: Ray) -> Color {
-        let t = hitSphere(center: Vector3(x: 0, y: 0, z: -1), radius: 0.5, ray: ray)
-        if t > 0 {
-            let n = simd_normalize(ray.point(at: t) - Vector3(x: 0, y: 0, z: -1))
-            return 0.5 * Vector3(x: n.x + 1, y: n.y + 1, z: n.z + 1)
-//            return Vector3(x: 1, y: 0, z: 0)
+    func color(ray: Ray, world: Hitable) -> Color {
+        if let hit = world.hit(ray: ray, tMin: 0, tMax: .greatestFiniteMagnitude) {
+            return 0.5 * Vector3(x: hit.normal.x + 1, y: hit.normal.y + 1, z: hit.normal.z + 1)
         }
-        return sky(ray: ray)
+        else {
+            return sky(ray: ray)
+        }
     }
     
     func render(renderer: Renderer) {
@@ -84,6 +132,10 @@ final class RenderScene {
         let horizontal = Vector3(x: 4.0, y: 0.0, z: 0.0)
         let vertical = Vector3(x: 0.0, y: 2.0, z: 0.0)
         let origin = Vector3(x: 0.0, y: 0.0, z: 0.0)
+        let world = HitableList(items: [
+            Sphere(center: Vector3(x: 0, y: 0, z: -1), radius: 0.5),
+            Sphere(center: Vector3(x: 0, y: -100.5, z: -1), radius: 100)
+        ])
         for y in 0 ..< h {
             for x in 0 ..< w {
                 let u = Component(x) / Component(w)
@@ -92,7 +144,7 @@ final class RenderScene {
                     origin: origin,
                     direction: corner + (u * horizontal) + ((1 - v) * vertical)
                 )
-                let c = color(ray: ray)
+                let c = color(ray: ray, world: world)
                 renderer.setPixel(x: x, y: y, color: c)
             }
         }
