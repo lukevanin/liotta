@@ -6,7 +6,7 @@ import OSLog
 let logger = Logger(subsystem: "liotta", category: "render")
 
 
-typealias Component = Float16
+typealias Component = Float32
 
 
 struct Color {
@@ -85,9 +85,9 @@ final class Renderer {
     }
     
     func component(from color: Color) -> Component {
-        Component(color.b * 255) << 0x10 |
-        Component(color.g * 255) << 0x08 |
-        Component(color.r * 255) << 0x00
+        Component(color.b * 255.99) << 0x10 |
+        Component(color.g * 255.99) << 0x08 |
+        Component(color.r * 255.99) << 0x00
     }
     
     func index(x: Int, y: Int) -> Int {
