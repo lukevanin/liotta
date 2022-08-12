@@ -199,10 +199,10 @@ actor Renderer {
         }
         if let hit = world.hit(ray: ray, tMin: 0, tMax: .greatestFiniteMagnitude) {
             // TODO: Remove hit.p + followed by hit.p -
-//            let target = hit.p + hit.normal + randomInUnitSphere()
-//            let nextRay = Ray(origin: hit.p, direction: simd_normalize(target - hit.p))
-            let target = hit.normal + randomInUnitSphere()
-            let nextRay = Ray(origin: hit.p, direction: simd_normalize(target))
+            let target = hit.p + hit.normal + randomInUnitSphere()
+            let nextRay = Ray(origin: hit.p, direction: simd_normalize(target - hit.p))
+//            let target = hit.normal + randomInUnitSphere()
+//            let nextRay = Ray(origin: hit.p, direction: simd_normalize(target))
             return 0.5 * color(ray: nextRay, world: world, depth: depth + 1)
         }
         else {
@@ -251,7 +251,7 @@ actor Renderer {
             let bufferPointer = rawPointer.bindMemory(to: Pixel.self)
             let t = (1 / Real(sampleCount))
             for i in 0 ..< count {
-                let c = buffer[i] * t
+                let c = correctGamma(buffer[i] * t)
                 let p = pixel(from: c)
                 bufferPointer[i] = p
             }
@@ -281,6 +281,14 @@ actor Renderer {
         Pixel(color.z * 255.99) << 0x10 |
         Pixel(color.y * 255.99) << 0x08 |
         Pixel(color.x * 255.99) << 0x00
+    }
+    
+    private func correctGamma(_ input: Color) -> Color {
+        Color(
+            x: sqrt(input.x),
+            y: sqrt(input.y),
+            z: sqrt(input.z)
+        )
     }
 }
 
