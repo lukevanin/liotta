@@ -63,6 +63,23 @@ struct LambertianMaterial: Material {
 }
 
 
+struct MetalMaterial: Material {
+    
+    let albedo: Vector3
+    
+    func scatter(inputRay: Ray, hit: HitRecord) -> ScatterRay? {
+        let reflected = simd_reflect(inputRay.direction, hit.normal)
+        guard simd_dot(reflected, hit.normal) > 0 else {
+            return nil
+        }
+        return ScatterRay(
+            ray: Ray(origin: hit.p, direction: reflected),
+            attenuation: albedo
+        )
+    }
+}
+
+
 struct HitRecord {
     let t: Real
     let p: Vector3
@@ -188,7 +205,21 @@ struct RenderScene {
             material: LambertianMaterial(
                 albedo: Vector3(x: 0.8, y: 0.8, z: 0.0)
             )
-        )
+        ),
+        Sphere(
+            center: Vector3(x: 1, y: 0, z: -1),
+            radius: 0.5,
+            material: MetalMaterial(
+                albedo: Vector3(x: 0.8, y: 0.6, z: 0.2)
+            )
+        ),
+        Sphere(
+            center: Vector3(x: -1, y: 0, z: -1),
+            radius: 0.5,
+            material: MetalMaterial(
+                albedo: Vector3(x: 0.8, y: 0.8, z: 0.8)
+            )
+        ),
     ])
 }
 
