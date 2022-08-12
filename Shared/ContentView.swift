@@ -5,8 +5,8 @@ struct ContentView: View {
     @ObservedObject var controller = RenderController(
         renderer: Renderer(
             configuration: Renderer.Configuration(
-                width: 512,
-                height: 512
+                width: 200,
+                height: 100
             )
         ),
         queue: DispatchQueue(
@@ -21,13 +21,13 @@ struct ContentView: View {
     var body: some View {
         ZStack {
             if let image = controller.image {
-                Image(image, scale: 1.0, label: Text("An image. There are many like it, but this one is mine."))
+                Image(image, scale: 0.25, label: Text("An image. There are many like it, but this one is mine."))
             }
             else {
                 ProgressView()
             }
         }
-        .frame(width: 512, height: 512)
+        .frame(width: 800, height: 400)
         .background(.mint)
         .onAppear() {
             controller.render(scene: RenderScene())
