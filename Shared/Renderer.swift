@@ -143,6 +143,7 @@ final class RenderScene {
     func render(renderer: Renderer) {
         let w = renderer.configuration.width
         let h = renderer.configuration.height
+        let samplesPerPixel = 50
         let camera = Camera()
         let world = HitableList(items: [
             Sphere(center: Vector3(x: 0, y: 0, z: -1), radius: 0.5),
@@ -150,11 +151,17 @@ final class RenderScene {
         ])
         for y in 0 ..< h {
             for x in 0 ..< w {
-                let u = Component(x) / Component(w)
-                let v = Component(y) / Component(h)
-                let ray = camera.rayAt(u: u, v: v)
-                let c = color(ray: ray, world: world)
-                renderer.setPixel(x: x, y: y, color: c)
+                var accumulatedColor = Color.zero
+                for _ in 0 ..< samplesPerPixel {
+                    let dx = Component.random(in: 0 ..< 1)
+                    let dy = Component.random(in: 0 ..< 1)
+                    let u = (Component(x) + dx) / Component(w)
+                    let v = (Component(y) + dy) / Component(h)
+                    let ray = camera.rayAt(u: u, v: v)
+                    accumulatedColor += color(ray: ray, world: world)
+                }
+                let averageColor = accumulatedColor / Component(samplesPerPixel)
+                renderer.setPixel(x: x, y: y, color: averageColor)
             }
         }
     }
