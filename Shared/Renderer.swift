@@ -16,6 +16,61 @@ typealias Vector3 = SIMD3<Real>
 typealias Color = Vector3
 
 
+extension Real {
+    static func random() -> Real {
+        Real.random(in: 0 ..< 1)
+    }
+}
+
+
+extension Vector3 {
+    static func randomInUnitSphere() -> Vector3 {
+        var p = Vector3.zero
+        repeat {
+            let r = Vector3(x: .random(), y: .random(), z: .random())
+            p = (2 * r) - .one
+        } while simd_length_squared(p) >= 1
+        return p
+    }
+}
+
+
+protocol Material {
+    func scatter(inputRay: Ray, hit: HitRecord) -> ScatterRay?
+}
+
+
+struct ScatterRay {
+    var ray: Ray
+    var attenuation: Vector3
+}
+
+
+struct LambertianMaterial: Material {
+    
+    var albedo: Vector3
+    
+    func scatter(inputRay: Ray, hit: HitRecord) -> ScatterRay? {
+        // TODO: Remove hit.p + followed by hit.p -
+        //            let target = hit.normal + randomInUnitSphere()
+        //            let nextRay = Ray(origin: hit.p, direction: simd_normalize(target))
+        let target = hit.p + hit.normal + .randomInUnitSphere()
+        return ScatterRay(
+            ray: Ray(origin: hit.p, direction: simd_normalize(target - hit.p)),
+            attenuation: albedo
+        )
+    }
+}
+
+
+struct HitRecord {
+    let t: Real
+    let p: Vector3
+    let normal: Vector3
+    let material: Material
+}
+
+
 struct Ray {
     
     var origin: Vector3
@@ -36,13 +91,6 @@ struct Ray {
 }
 
 
-struct HitRecord {
-    let t: Real
-    let p: Vector3
-    let normal: Vector3
-}
-
-
 protocol Hitable {
     func hit(ray: Ray, tMin: Real, tMax: Real) -> HitRecord?
 }
@@ -51,6 +99,7 @@ protocol Hitable {
 struct Sphere: Hitable {
     var center: Vector3
     var radius: Real
+    var material: Material
     
     func hit(ray: Ray, tMin: Real, tMax: Real) -> HitRecord? {
         let oc: Vector3 = ray.origin - center
@@ -68,7 +117,8 @@ struct Sphere: Hitable {
                 return HitRecord(
                     t: temp,
                     p: p,
-                    normal: simd_normalize(p - center)
+                    normal: simd_normalize(p - center),
+                    material: material
                 )
             }
             
@@ -78,7 +128,8 @@ struct Sphere: Hitable {
                 return HitRecord(
                     t: temp,
                     p: p,
-                    normal: simd_normalize(p - center)
+                    normal: simd_normalize(p - center),
+                    material: material
                 )
             }
         }
@@ -124,8 +175,20 @@ struct Camera {
 struct RenderScene {
     var camera = Camera()
     var world = HitableList(items: [
-        Sphere(center: Vector3(x: 0, y: 0, z: -1), radius: 0.5),
-        Sphere(center: Vector3(x: 0, y: -100.5, z: -1), radius: 100)
+        Sphere(
+            center: Vector3(x: 0, y: 0, z: -1),
+            radius: 0.5,
+            material: LambertianMaterial(
+                albedo: Vector3(x: 0.8, y: 0.3, z: 0.3)
+            )
+        ),
+        Sphere(
+            center: Vector3(x: 0, y: -100.5, z: -1),
+            radius: 100,
+            material: LambertianMaterial(
+                albedo: Vector3(x: 0.8, y: 0.8, z: 0.0)
+            )
+        )
     ])
 }
 
@@ -139,7 +202,7 @@ actor Renderer {
         let height: Int
         let samplesPerPixel: Int = 100
         let samplesPerIteration: Int = 10
-        let maximumBounces: Int = 100
+        let maximumBounces: Int = 50
     }
     
     private var scene: RenderScene?
@@ -181,8 +244,8 @@ actor Renderer {
             for x in 0 ..< w {
                 var accumulatedColor = getPixel(x: x, y: y)
                 for _ in 0 ..< configuration.samplesPerIteration {
-                    let dx = random()
-                    let dy = random()
+                    let dx = Real.random()
+                    let dy = Real.random()
                     let u = (Real(x) + dx) / Real(w)
                     let v = (Real(y) + dy) / Real(h)
                     let ray = scene.camera.rayAt(u: u, v: v)
@@ -196,34 +259,18 @@ actor Renderer {
     }
     
     private func color(ray: Ray, world: Hitable, depth: Int = 0) -> Color {
-        guard depth < configuration.maximumBounces else {
-            return .zero
-        }
-        primaryRayCount += 1
-        if let hit = world.hit(ray: ray, tMin: 0.001, tMax: .greatestFiniteMagnitude) {
-            // TODO: Remove hit.p + followed by hit.p -
-            let target = hit.p + hit.normal + randomInUnitSphere()
-            let nextRay = Ray(origin: hit.p, direction: simd_normalize(target - hit.p))
-//            let target = hit.normal + randomInUnitSphere()
-//            let nextRay = Ray(origin: hit.p, direction: simd_normalize(target))
-            return 0.5 * color(ray: nextRay, world: world, depth: depth + 1)
+        if let hit = world.hit(ray: ray, tMin: 0.001, tMax: .greatestFiniteMagnitude), depth < configuration.maximumBounces {
+            primaryRayCount += 1
+            if let output = hit.material.scatter(inputRay: ray, hit: hit) {
+                return output.attenuation * color(ray: output.ray, world: world, depth: depth + 1)
+            }
+            else {
+                return .zero
+            }
         }
         else {
             return sky(ray: ray)
         }
-    }
-    
-    private func randomInUnitSphere() -> Vector3 {
-        var p = Vector3.zero
-        repeat {
-            let r = Vector3(x: random(), y: random(), z: random())
-            p = (2 * r) - .one
-        } while simd_length_squared(p) >= 1
-        return p
-    }
-    
-    private func random() -> Real {
-        Real.random(in: 0 ..< 1)
     }
 
     private func sky(ray: Ray) -> Color {
