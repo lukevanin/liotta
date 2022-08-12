@@ -137,7 +137,8 @@ actor Renderer {
     struct Configuration {
         let width: Int
         let height: Int
-        let samplesPerPixel: Int = 50
+        let samplesPerPixel: Int = 100
+        let maximumBounces: Int = 100
     }
     
     private var scene: RenderScene?
@@ -174,8 +175,8 @@ actor Renderer {
         for y in 0 ..< h {
             for x in 0 ..< w {
                 var accumulatedColor = getPixel(x: x, y: y)
-                let dx = Real.random(in: 0 ..< 1)
-                let dy = Real.random(in: 0 ..< 1)
+                let dx = random()
+                let dy = random()
                 let u = (Real(x) + dx) / Real(w)
                 let v = (Real(y) + dy) / Real(h)
                 let ray = scene.camera.rayAt(u: u, v: v)
@@ -192,15 +193,36 @@ actor Renderer {
         logger.info("Primary rays \(self.primaryRayCount)")
     }
     
-    private func color(ray: Ray, world: Hitable) -> Color {
+    private func color(ray: Ray, world: Hitable, depth: Int = 0) -> Color {
+        guard depth < configuration.maximumBounces else {
+            return .zero
+        }
         if let hit = world.hit(ray: ray, tMin: 0, tMax: .greatestFiniteMagnitude) {
-            return 0.5 * Vector3(x: hit.normal.x + 1, y: hit.normal.y + 1, z: hit.normal.z + 1)
+            // TODO: Remove hit.p + followed by hit.p -
+//            let target = hit.p + hit.normal + randomInUnitSphere()
+//            let nextRay = Ray(origin: hit.p, direction: simd_normalize(target - hit.p))
+            let target = hit.normal + randomInUnitSphere()
+            let nextRay = Ray(origin: hit.p, direction: simd_normalize(target))
+            return 0.5 * color(ray: nextRay, world: world, depth: depth + 1)
         }
         else {
             return sky(ray: ray)
         }
     }
     
+    private func randomInUnitSphere() -> Vector3 {
+        var p = Vector3.zero
+        repeat {
+            let r = Vector3(x: random(), y: random(), z: random())
+            p = (2 * r) - .one
+        } while simd_length_squared(p) >= 1
+        return p
+    }
+    
+    private func random() -> Real {
+        Real.random(in: 0 ..< 1)
+    }
+
     private func sky(ray: Ray) -> Color {
         let colorA = Color(x: 1.0, y: 1.0, z: 1.0)
         let colorB = Color(x: 0.5, y: 0.7, z: 1.0)
