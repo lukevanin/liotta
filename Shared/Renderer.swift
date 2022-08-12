@@ -1,5 +1,6 @@
 import Foundation
 import CoreGraphics
+import simd
 import OSLog
 
 
@@ -9,10 +10,33 @@ let logger = Logger(subsystem: "liotta", category: "render")
 typealias Component = Float32
 
 
+typealias Vector3 = SIMD3<Double>
+
+
 struct Color {
     var r: Component
     var g: Component
     var b: Component
+}
+
+
+struct Ray {
+    
+    var origin: Vector3
+    var direction: Vector3
+    
+    init() {
+        self.init(origin: .zero, direction: .zero)
+    }
+    
+    init(origin: Vector3, direction: Vector3) {
+        self.origin = origin
+        self.direction = direction
+    }
+    
+    func pointAtParameter(t: Double) -> Vector3 {
+        origin + (direction * t)
+    }
 }
 
 
@@ -27,8 +51,8 @@ final class RenderScene {
                 let v = Component(y) / Component(h)
                 let c = Color(
                     r: u,
-                    g: u * v,
-                    b: v
+                    g: v,
+                    b: 0.2
                 )
                 renderer.setPixel(x: x, y: y, color: c)
             }
