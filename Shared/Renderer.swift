@@ -137,7 +137,7 @@ actor Renderer {
     struct Configuration {
         let width: Int
         let height: Int
-        let samplesPerPixel: Int = 100
+        let samplesPerPixel: Int = 1000
         let maximumBounces: Int = 100
     }
     
@@ -153,6 +153,10 @@ actor Renderer {
         let count = configuration.width * configuration.height
         self.buffer = UnsafeMutableBufferPointer.allocate(capacity: count)
         buffer.initialize(repeating: .zero)
+    }
+    
+    deinit {
+        buffer.deallocate()
     }
     
     func setScene(_ scene: RenderScene?) {
@@ -197,7 +201,7 @@ actor Renderer {
         guard depth < configuration.maximumBounces else {
             return .zero
         }
-        if let hit = world.hit(ray: ray, tMin: 0, tMax: .greatestFiniteMagnitude) {
+        if let hit = world.hit(ray: ray, tMin: 0.001, tMax: .greatestFiniteMagnitude) {
             // TODO: Remove hit.p + followed by hit.p -
             let target = hit.p + hit.normal + randomInUnitSphere()
             let nextRay = Ray(origin: hit.p, direction: simd_normalize(target - hit.p))
