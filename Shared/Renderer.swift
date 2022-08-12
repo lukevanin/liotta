@@ -106,6 +106,21 @@ struct HitableList: Hitable {
 }
 
 
+struct Camera {
+    var corner: Vector3 = Vector3(x: -2.0, y: -1.0, z: -1.0)
+    var horizontal: Vector3 = Vector3(x: 4.0, y: 0.0, z: 0.0)
+    var vertical: Vector3 = Vector3(x: 0.0, y: 2.0, z: 0.0)
+    var origin: Vector3 = Vector3(x: 0.0, y: 0.0, z: 0.0)
+
+    func rayAt(u: Double, v: Double) -> Ray {
+        Ray(
+            origin: origin,
+            direction: corner + (u * horizontal) + ((1 - v) * vertical)
+        )
+    }
+}
+
+
 final class RenderScene {
     
     func sky(ray: Ray) -> Color {
@@ -128,10 +143,7 @@ final class RenderScene {
     func render(renderer: Renderer) {
         let w = renderer.configuration.width
         let h = renderer.configuration.height
-        let corner = Vector3(x: -2.0, y: -1.0, z: -1.0)
-        let horizontal = Vector3(x: 4.0, y: 0.0, z: 0.0)
-        let vertical = Vector3(x: 0.0, y: 2.0, z: 0.0)
-        let origin = Vector3(x: 0.0, y: 0.0, z: 0.0)
+        let camera = Camera()
         let world = HitableList(items: [
             Sphere(center: Vector3(x: 0, y: 0, z: -1), radius: 0.5),
             Sphere(center: Vector3(x: 0, y: -100.5, z: -1), radius: 100)
@@ -140,10 +152,7 @@ final class RenderScene {
             for x in 0 ..< w {
                 let u = Component(x) / Component(w)
                 let v = Component(y) / Component(h)
-                let ray = Ray(
-                    origin: origin,
-                    direction: corner + (u * horizontal) + ((1 - v) * vertical)
-                )
+                let ray = camera.rayAt(u: u, v: v)
                 let c = color(ray: ray, world: world)
                 renderer.setPixel(x: x, y: y, color: c)
             }
