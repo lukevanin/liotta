@@ -7,10 +7,10 @@ import OSLog
 let logger = Logger(subsystem: "liotta", category: "render")
 
 
-typealias Component = Double
+typealias Real = Double
 
 
-typealias Vector3 = SIMD3<Component>
+typealias Vector3 = SIMD3<Real>
 
 
 typealias Color = Vector3
@@ -30,29 +30,29 @@ struct Ray {
         self.direction = direction
     }
     
-    func point(at t: Double) -> Vector3 {
+    func point(at t: Real) -> Vector3 {
         origin + (direction * t)
     }
 }
 
 
 struct HitRecord {
-    let t: Double
+    let t: Real
     let p: Vector3
     let normal: Vector3
 }
 
 
 protocol Hitable {
-    func hit(ray: Ray, tMin: Double, tMax: Double) -> HitRecord?
+    func hit(ray: Ray, tMin: Real, tMax: Real) -> HitRecord?
 }
 
 
 struct Sphere: Hitable {
     var center: Vector3
-    var radius: Double
+    var radius: Real
     
-    func hit(ray: Ray, tMin: Double, tMax: Double) -> HitRecord? {
+    func hit(ray: Ray, tMin: Real, tMax: Real) -> HitRecord? {
         let oc: Vector3 = ray.origin - center
         let a = simd_dot(ray.direction, ray.direction)
         let b = simd_dot(oc, ray.direction)
@@ -60,7 +60,7 @@ struct Sphere: Hitable {
         let discriminant = (b * b) - (a * c)
         if discriminant > 0 {
             let s = sqrt(discriminant)
-            var temp: Double
+            var temp: Real
             
             temp = (-b - s) / a
             if temp > tMin && temp < tMax {
@@ -92,7 +92,7 @@ struct HitableList: Hitable {
     
     var items = [Hitable]()
     
-    func hit(ray: Ray, tMin: Double, tMax: Double) -> HitRecord? {
+    func hit(ray: Ray, tMin: Real, tMax: Real) -> HitRecord? {
         var output: HitRecord?
         var closest = tMax
         for item in items {
@@ -112,7 +112,7 @@ struct Camera {
     var vertical: Vector3 = Vector3(x: 0.0, y: 2.0, z: 0.0)
     var origin: Vector3 = Vector3(x: 0.0, y: 0.0, z: 0.0)
 
-    func rayAt(u: Double, v: Double) -> Ray {
+    func rayAt(u: Real, v: Real) -> Ray {
         Ray(
             origin: origin,
             direction: corner + (u * horizontal) + ((1 - v) * vertical)
@@ -188,16 +188,16 @@ final class Renderer {
             for x in 0 ..< w {
                 var accumulatedColor = Color.zero
                 for _ in 0 ..< ns {
-                    let dx = Component.random(in: 0 ..< 1)
-                    let dy = Component.random(in: 0 ..< 1)
-                    let u = (Component(x) + dx) / Component(w)
-                    let v = (Component(y) + dy) / Component(h)
+                    let dx = Real.random(in: 0 ..< 1)
+                    let dy = Real.random(in: 0 ..< 1)
+                    let u = (Real(x) + dx) / Real(w)
+                    let v = (Real(y) + dy) / Real(h)
                     let ray = scene.camera.rayAt(u: u, v: v)
                     accumulatedColor += color(ray: ray, world: scene.world)
                     primaryRayCount += 1
                 }
-                let averageColor = accumulatedColor / Component(samplesPerPixel)
-                renderer.setPixel(x: x, y: y, color: averageColor)
+                let averageColor = accumulatedColor / Real(configuration.samplesPerPixel)
+                setPixel(x: x, y: y, color: averageColor)
             }
         }
         let endTime = Date()
@@ -228,9 +228,9 @@ final class Renderer {
     }
     
     private func pixel(from color: Color) -> Pixel {
-        Component(color.z * 255.99) << 0x10 |
-        Component(color.y * 255.99) << 0x08 |
-        Component(color.x * 255.99) << 0x00
+        Pixel(color.z * 255.99) << 0x10 |
+        Pixel(color.y * 255.99) << 0x08 |
+        Pixel(color.x * 255.99) << 0x00
     }
     
     private func index(x: Int, y: Int) -> Int {
