@@ -121,60 +121,23 @@ struct Camera {
 }
 
 
-final class RenderScene {
-    
-    func sky(ray: Ray) -> Color {
-        let colorA = Color(x: 1.0, y: 1.0, z: 1.0)
-        let colorB = Color(x: 0.5, y: 0.7, z: 1.0)
-        let unitDirection = simd_normalize(ray.direction)
-        let t = 0.5 * (unitDirection.y + 1.0)
-        return ((1 - t) * colorA) + (t * colorB)
-    }
-    
-    func color(ray: Ray, world: Hitable) -> Color {
-        if let hit = world.hit(ray: ray, tMin: 0, tMax: .greatestFiniteMagnitude) {
-            return 0.5 * Vector3(x: hit.normal.x + 1, y: hit.normal.y + 1, z: hit.normal.z + 1)
-        }
-        else {
-            return sky(ray: ray)
-        }
-    }
-    
-    func render(renderer: Renderer) {
-        let w = renderer.configuration.width
-        let h = renderer.configuration.height
-        let samplesPerPixel = 50
-        let camera = Camera()
-        let world = HitableList(items: [
-            Sphere(center: Vector3(x: 0, y: 0, z: -1), radius: 0.5),
-            Sphere(center: Vector3(x: 0, y: -100.5, z: -1), radius: 100)
-        ])
-        for y in 0 ..< h {
-            for x in 0 ..< w {
-                var accumulatedColor = Color.zero
-                for _ in 0 ..< samplesPerPixel {
-                    let dx = Component.random(in: 0 ..< 1)
-                    let dy = Component.random(in: 0 ..< 1)
-                    let u = (Component(x) + dx) / Component(w)
-                    let v = (Component(y) + dy) / Component(h)
-                    let ray = camera.rayAt(u: u, v: v)
-                    accumulatedColor += color(ray: ray, world: world)
-                }
-                let averageColor = accumulatedColor / Component(samplesPerPixel)
-                renderer.setPixel(x: x, y: y, color: averageColor)
-            }
-        }
-    }
+struct RenderScene {
+    var camera = Camera()
+    var world = HitableList(items: [
+        Sphere(center: Vector3(x: 0, y: 0, z: -1), radius: 0.5),
+        Sphere(center: Vector3(x: 0, y: -100.5, z: -1), radius: 100)
+    ])
 }
 
 
 final class Renderer {
     
-    typealias Component = UInt32
+    typealias Pixel = UInt32
     
     struct Configuration {
         let width: Int
         let height: Int
+        let samplesPerPixel: Int = 50
     }
     
     let configuration: Configuration
@@ -186,8 +149,12 @@ final class Renderer {
         self.buffer = UnsafeMutableBufferPointer.allocate(capacity: count)
     }
     
-    func render(scene: RenderScene) -> CGImage? {
-        scene.render(renderer: self)
+    func renderImage(scene: RenderScene) -> CGImage? {
+        render(scene: scene)
+        return makeImage()
+    }
+    
+    private func makeImage() -> CGImage? {
         let data = Data(buffer: buffer)
         guard let dataProvider = CGDataProvider(data: data as CFData) else {
             logger.warning("Cannot allocate data provider for render output")
@@ -195,7 +162,7 @@ final class Renderer {
         }
         let alphaInfo = CGImageAlphaInfo.noneSkipLast
         let bitmapInfo = CGBitmapInfo(rawValue: alphaInfo.rawValue)
-        let componentBytes = MemoryLayout<Component>.size
+        let componentBytes = MemoryLayout<Pixel>.size
         return CGImage(
             width: configuration.width,
             height: configuration.height,
@@ -211,17 +178,62 @@ final class Renderer {
         )
     }
     
-    func setPixel(x: Int, y: Int, color: Color) {
-        buffer[index(x: x, y: y)] = component(from: color)
+    private func render(scene: RenderScene) {
+        let w = configuration.width
+        let h = configuration.height
+        let ns = configuration.samplesPerPixel
+        var primaryRayCount = 0
+        let startTime = Date()
+        for y in 0 ..< h {
+            for x in 0 ..< w {
+                var accumulatedColor = Color.zero
+                for _ in 0 ..< ns {
+                    let dx = Component.random(in: 0 ..< 1)
+                    let dy = Component.random(in: 0 ..< 1)
+                    let u = (Component(x) + dx) / Component(w)
+                    let v = (Component(y) + dy) / Component(h)
+                    let ray = scene.camera.rayAt(u: u, v: v)
+                    accumulatedColor += color(ray: ray, world: scene.world)
+                    primaryRayCount += 1
+                }
+                let averageColor = accumulatedColor / Component(samplesPerPixel)
+                renderer.setPixel(x: x, y: y, color: averageColor)
+            }
+        }
+        let endTime = Date()
+        let elapsedTime = endTime.timeIntervalSince(startTime)
+        logger.info("Render time \(elapsedTime.formatted()) seconds")
+        logger.info("Primary rays \(primaryRayCount)")
     }
     
-    func component(from color: Color) -> Component {
+    private func color(ray: Ray, world: Hitable) -> Color {
+        if let hit = world.hit(ray: ray, tMin: 0, tMax: .greatestFiniteMagnitude) {
+            return 0.5 * Vector3(x: hit.normal.x + 1, y: hit.normal.y + 1, z: hit.normal.z + 1)
+        }
+        else {
+            return sky(ray: ray)
+        }
+    }
+    
+    private func sky(ray: Ray) -> Color {
+        let colorA = Color(x: 1.0, y: 1.0, z: 1.0)
+        let colorB = Color(x: 0.5, y: 0.7, z: 1.0)
+        let unitDirection = simd_normalize(ray.direction)
+        let t = 0.5 * (unitDirection.y + 1.0)
+        return ((1 - t) * colorA) + (t * colorB)
+    }
+
+    private func setPixel(x: Int, y: Int, color: Color) {
+        buffer[index(x: x, y: y)] = pixel(from: color)
+    }
+    
+    private func pixel(from color: Color) -> Pixel {
         Component(color.z * 255.99) << 0x10 |
         Component(color.y * 255.99) << 0x08 |
         Component(color.x * 255.99) << 0x00
     }
     
-    func index(x: Int, y: Int) -> Int {
+    private func index(x: Int, y: Int) -> Int {
         (y * configuration.width) + x
     }
 }
@@ -244,7 +256,7 @@ final class RenderController: ObservableObject {
             guard let self = self else {
                 return
             }
-            let image = self.renderer.render(scene: scene)
+            let image = self.renderer.renderImage(scene: scene)
             DispatchQueue.main.async {
                 self.image = image
             }
