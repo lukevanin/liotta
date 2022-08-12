@@ -3,18 +3,9 @@ import SwiftUI
 struct ContentView: View {
     
     @ObservedObject var controller = RenderController(
-        renderer: Renderer(
-            configuration: Renderer.Configuration(
-                width: 200,
-                height: 100
-            )
-        ),
-        queue: DispatchQueue(
-            label: "render-queue",
-            qos: .userInitiated,
-            attributes: [],
-            autoreleaseFrequency: .workItem,
-            target: .none
+        configuration: Renderer.Configuration(
+            width: 200,
+            height: 100
         )
     )
     
@@ -30,7 +21,11 @@ struct ContentView: View {
         .frame(width: 800, height: 400)
         .background(.mint)
         .onAppear() {
-            controller.render(scene: RenderScene())
+            controller.scene = RenderScene()
+            controller.startRenderer()
+        }
+        .onDisappear() {
+            controller.stopRenderer()
         }
     }
 }

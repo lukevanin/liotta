@@ -130,7 +130,7 @@ struct RenderScene {
 }
 
 
-final class Renderer {
+actor Renderer {
     
     typealias Pixel = UInt32
     
@@ -140,70 +140,56 @@ final class Renderer {
         let samplesPerPixel: Int = 50
     }
     
-    let configuration: Configuration
-    private let buffer: UnsafeMutableBufferPointer<UInt32>
+    private var scene: RenderScene?
+    private var sampleCount: Int = 0
+    private var primaryRayCount: Int = 0
+    private var startTime: Date = Date()
+    private let configuration: Configuration
+    private let buffer: UnsafeMutableBufferPointer<Color>
     
     init(configuration: Configuration) {
         self.configuration = configuration
         let count = configuration.width * configuration.height
         self.buffer = UnsafeMutableBufferPointer.allocate(capacity: count)
+        buffer.initialize(repeating: .zero)
     }
     
-    func renderImage(scene: RenderScene) -> CGImage? {
-        render(scene: scene)
-        return makeImage()
+    func setScene(_ scene: RenderScene?) {
+        self.scene = scene
+        startTime = Date()
+        sampleCount = 0
+        primaryRayCount = 0
+        buffer.assign(repeating: .zero)
     }
     
-    private func makeImage() -> CGImage? {
-        let data = Data(buffer: buffer)
-        guard let dataProvider = CGDataProvider(data: data as CFData) else {
-            logger.warning("Cannot allocate data provider for render output")
-            return nil
+    func render() {
+        guard let scene = scene else {
+            return
         }
-        let alphaInfo = CGImageAlphaInfo.noneSkipLast
-        let bitmapInfo = CGBitmapInfo(rawValue: alphaInfo.rawValue)
-        let componentBytes = MemoryLayout<Pixel>.size
-        return CGImage(
-            width: configuration.width,
-            height: configuration.height,
-            bitsPerComponent: 8,
-            bitsPerPixel: componentBytes * 8,
-            bytesPerRow: componentBytes * configuration.width,
-            space: CGColorSpaceCreateDeviceRGB(),
-            bitmapInfo: bitmapInfo,
-            provider: dataProvider,
-            decode: nil,
-            shouldInterpolate: false,
-            intent: .perceptual
-        )
-    }
-    
-    private func render(scene: RenderScene) {
+        guard sampleCount < configuration.samplesPerPixel else {
+            return
+        }
         let w = configuration.width
         let h = configuration.height
-        let ns = configuration.samplesPerPixel
-        var primaryRayCount = 0
-        let startTime = Date()
         for y in 0 ..< h {
             for x in 0 ..< w {
-                var accumulatedColor = Color.zero
-                for _ in 0 ..< ns {
-                    let dx = Real.random(in: 0 ..< 1)
-                    let dy = Real.random(in: 0 ..< 1)
-                    let u = (Real(x) + dx) / Real(w)
-                    let v = (Real(y) + dy) / Real(h)
-                    let ray = scene.camera.rayAt(u: u, v: v)
-                    accumulatedColor += color(ray: ray, world: scene.world)
-                    primaryRayCount += 1
-                }
-                let averageColor = accumulatedColor / Real(configuration.samplesPerPixel)
-                setPixel(x: x, y: y, color: averageColor)
+                var accumulatedColor = getPixel(x: x, y: y)
+                let dx = Real.random(in: 0 ..< 1)
+                let dy = Real.random(in: 0 ..< 1)
+                let u = (Real(x) + dx) / Real(w)
+                let v = (Real(y) + dy) / Real(h)
+                let ray = scene.camera.rayAt(u: u, v: v)
+                accumulatedColor += color(ray: ray, world: scene.world)
+                setPixel(x: x, y: y, color: accumulatedColor)
+                primaryRayCount += 1
             }
         }
+        sampleCount += 1
         let endTime = Date()
         let elapsedTime = endTime.timeIntervalSince(startTime)
+        logger.info("Samples per pixel \(self.sampleCount.formatted())")
         logger.info("Render time \(elapsedTime.formatted()) seconds")
-        logger.info("Primary rays \(primaryRayCount)")
+        logger.info("Primary rays \(self.primaryRayCount)")
     }
     
     private func color(ray: Ray, world: Hitable) -> Color {
@@ -222,9 +208,51 @@ final class Renderer {
         let t = 0.5 * (unitDirection.y + 1.0)
         return ((1 - t) * colorA) + (t * colorB)
     }
+    
+    private func getPixel(x: Int, y: Int) -> Color {
+        buffer[index(x: x, y: y)]
+    }
 
     private func setPixel(x: Int, y: Int, color: Color) {
-        buffer[index(x: x, y: y)] = pixel(from: color)
+        buffer[index(x: x, y: y)] = color
+    }
+    
+    private func index(x: Int, y: Int) -> Int {
+        (y * configuration.width) + x
+    }
+    
+    func makeImage() -> CGImage? {
+        let componentBytes = MemoryLayout<Pixel>.size
+        let count = configuration.width * configuration.height
+        var data = Data(count: count * componentBytes)
+        data.withUnsafeMutableBytes { rawPointer in
+            let bufferPointer = rawPointer.bindMemory(to: Pixel.self)
+            let t = (1 / Real(sampleCount))
+            for i in 0 ..< count {
+                let c = buffer[i] * t
+                let p = pixel(from: c)
+                bufferPointer[i] = p
+            }
+        }
+        guard let dataProvider = CGDataProvider(data: data as CFData) else {
+            logger.warning("Cannot allocate data provider for render output")
+            return nil
+        }
+        let alphaInfo = CGImageAlphaInfo.noneSkipLast
+        let bitmapInfo = CGBitmapInfo(rawValue: alphaInfo.rawValue)
+        return CGImage(
+            width: configuration.width,
+            height: configuration.height,
+            bitsPerComponent: 8,
+            bitsPerPixel: componentBytes * 8,
+            bytesPerRow: componentBytes * configuration.width,
+            space: CGColorSpaceCreateDeviceRGB(),
+            bitmapInfo: bitmapInfo,
+            provider: dataProvider,
+            decode: nil,
+            shouldInterpolate: false,
+            intent: .perceptual
+        )
     }
     
     private func pixel(from color: Color) -> Pixel {
@@ -232,34 +260,60 @@ final class Renderer {
         Pixel(color.y * 255.99) << 0x08 |
         Pixel(color.x * 255.99) << 0x00
     }
-    
-    private func index(x: Int, y: Int) -> Int {
-        (y * configuration.width) + x
-    }
 }
 
 
-final class RenderController: ObservableObject {
+@globalActor
+actor RenderActor {
+    
+    static var shared = RenderActor()
+}
+
+
+@MainActor final class RenderController: ObservableObject {
     
     @Published var image: CGImage?
     
-    private let renderer: Renderer
-    private let queue: DispatchQueue
-    
-    init(renderer: Renderer, queue: DispatchQueue) {
-        self.renderer = renderer
-        self.queue = queue
+    var scene: RenderScene? {
+        didSet {
+            setRenderScene(scene)
+        }
     }
     
-    func render(scene: RenderScene) {
-        queue.async { [weak self] in
-            guard let self = self else {
-                return
-            }
-            let image = self.renderer.renderImage(scene: scene)
-            DispatchQueue.main.async {
-                self.image = image
+    private var running: Bool
+    private let renderer: Renderer
+    
+    init(configuration: Renderer.Configuration) {
+        self.renderer = Renderer(configuration: configuration)
+        self.running = false
+    }
+    
+    private func setRenderScene(_ scene: RenderScene?) {
+        Task.detached {
+            await self.renderer.setScene(scene)
+        }
+    }
+    
+    func startRenderer() {
+        guard running == false else {
+            return
+        }
+        running = true
+        Task.detached {
+            let running = await self.running
+            while running == true {
+                await self.renderer.render()
+                let image = await self.renderer.makeImage()
+                await self.setImage(image)
             }
         }
+    }
+    
+    private func setImage(_ image: CGImage?) {
+        self.image = image
+    }
+
+    func stopRenderer() {
+        running = false
     }
 }
