@@ -7,17 +7,20 @@ import OSLog
 let logger = Logger(subsystem: "liotta", category: "render")
 
 
-typealias Component = Float32
+typealias Component = Double
 
 
-typealias Vector3 = SIMD3<Double>
+typealias Vector3 = SIMD3<Component>
 
 
-struct Color {
-    var r: Component
-    var g: Component
-    var b: Component
-}
+typealias Color = Vector3
+
+
+//struct Color {
+//    var r: Component
+//    var g: Component
+//    var b: Component
+//}
 
 
 struct Ray {
@@ -42,18 +45,30 @@ struct Ray {
 
 final class RenderScene {
     
+    func color(ray: Ray) -> Color {
+        let a = Color(x: 1.0, y: 1.0, z: 1.0)
+        let b = Color(x: 0.5, y: 0.7, z: 1.0)
+        let unitDirection = simd_normalize(ray.direction)
+        let t = 0.5 * (unitDirection.y + 1.0)
+        return ((1 - t) * a) + (t * b)
+    }
+    
     func render(renderer: Renderer) {
         let w = renderer.configuration.width
         let h = renderer.configuration.height
+        let corner = Vector3(x: -2.0, y: -1.0, z: -1.0)
+        let horizontal = Vector3(x: 4.0, y: 0.0, z: 0.0)
+        let vertical = Vector3(x: 0.0, y: 2.0, z: 0.0)
+        let origin = Vector3(x: 0.0, y: 0.0, z: 0.0)
         for y in 0 ..< h {
             for x in 0 ..< w {
                 let u = Component(x) / Component(w)
                 let v = Component(y) / Component(h)
-                let c = Color(
-                    r: u,
-                    g: v,
-                    b: 0.2
+                let ray = Ray(
+                    origin: origin,
+                    direction: corner + (u * horizontal) + ((1 - v) * vertical)
                 )
+                let c = color(ray: ray)
                 renderer.setPixel(x: x, y: y, color: c)
             }
         }
@@ -109,9 +124,9 @@ final class Renderer {
     }
     
     func component(from color: Color) -> Component {
-        Component(color.b * 255.99) << 0x10 |
-        Component(color.g * 255.99) << 0x08 |
-        Component(color.r * 255.99) << 0x00
+        Component(color.z * 255.99) << 0x10 |
+        Component(color.y * 255.99) << 0x08 |
+        Component(color.x * 255.99) << 0x00
     }
     
     func index(x: Int, y: Int) -> Int {
