@@ -137,7 +137,8 @@ actor Renderer {
     struct Configuration {
         let width: Int
         let height: Int
-        let samplesPerPixel: Int = 1000
+        let samplesPerPixel: Int = 100
+        let samplesPerIteration: Int = 10
         let maximumBounces: Int = 100
     }
     
@@ -179,28 +180,26 @@ actor Renderer {
         for y in 0 ..< h {
             for x in 0 ..< w {
                 var accumulatedColor = getPixel(x: x, y: y)
-                let dx = random()
-                let dy = random()
-                let u = (Real(x) + dx) / Real(w)
-                let v = (Real(y) + dy) / Real(h)
-                let ray = scene.camera.rayAt(u: u, v: v)
-                accumulatedColor += color(ray: ray, world: scene.world)
+                for _ in 0 ..< configuration.samplesPerIteration {
+                    let dx = random()
+                    let dy = random()
+                    let u = (Real(x) + dx) / Real(w)
+                    let v = (Real(y) + dy) / Real(h)
+                    let ray = scene.camera.rayAt(u: u, v: v)
+                    accumulatedColor += color(ray: ray, world: scene.world)
+                }
                 setPixel(x: x, y: y, color: accumulatedColor)
-                primaryRayCount += 1
             }
         }
-        sampleCount += 1
-        let endTime = Date()
-        let elapsedTime = endTime.timeIntervalSince(startTime)
-        logger.info("Samples per pixel \(self.sampleCount.formatted())")
-        logger.info("Render time \(elapsedTime.formatted()) seconds")
-        logger.info("Primary rays \(self.primaryRayCount)")
+        sampleCount += configuration.samplesPerIteration
+        logStats()
     }
     
     private func color(ray: Ray, world: Hitable, depth: Int = 0) -> Color {
         guard depth < configuration.maximumBounces else {
             return .zero
         }
+        primaryRayCount += 1
         if let hit = world.hit(ray: ray, tMin: 0.001, tMax: .greatestFiniteMagnitude) {
             // TODO: Remove hit.p + followed by hit.p -
             let target = hit.p + hit.normal + randomInUnitSphere()
@@ -293,6 +292,14 @@ actor Renderer {
             y: sqrt(input.y),
             z: sqrt(input.z)
         )
+    }
+    
+    func logStats() {
+        let endTime = Date()
+        let elapsedTime = endTime.timeIntervalSince(startTime)
+        logger.info("Samples per pixel \(self.sampleCount.formatted())")
+        logger.info("Render time \(elapsedTime.formatted()) seconds")
+        logger.info("Primary rays \(self.primaryRayCount)")
     }
 }
 
