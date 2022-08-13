@@ -331,7 +331,7 @@ actor Renderer {
         let width: Int
         let height: Int
         let samplesPerPixel: Int = 10000
-        let samplesPerIteration: Int = 10
+        let samplesPerIteration: Int = 1
         let maximumBounces: Int = 50
     }
     

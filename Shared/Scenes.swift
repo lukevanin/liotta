@@ -85,7 +85,7 @@ func makeChapter12Scene() -> RenderScene {
             center: Vector3(x: -4, y: 1, z: 0),
             radius: 1,
             material: LambertianMaterial(
-                albedo: Vector3(x: 0.4, y: 0.2, z: 1.0)
+                albedo: Vector3(x: 0.4, y: 0.2, z: 0.1)
             )
         )
     )
