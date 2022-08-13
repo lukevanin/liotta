@@ -4,8 +4,8 @@ struct ContentView: View {
     
     @ObservedObject var controller = RenderController(
         configuration: Renderer.Configuration(
-            width: 200,
-            height: 100
+            width: 400,
+            height: 200
         )
     )
     
@@ -21,7 +21,7 @@ struct ContentView: View {
         .frame(width: 800, height: 400)
         .background(.mint)
         .onAppear() {
-            controller.scene = RenderScene()
+            controller.scene = makeChapter12Scene()
             controller.startRenderer()
         }
         .onDisappear() {

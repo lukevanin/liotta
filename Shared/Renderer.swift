@@ -241,6 +241,10 @@ struct HitableList: Hitable {
     
     var items = [Hitable]()
     
+    mutating func append(_ item: Hitable) {
+        items.append(item)
+    }
+    
     func hit(ray: Ray, tMin: Real, tMax: Real) -> HitRecord? {
         var output: HitRecord?
         var closest = tMax
@@ -304,7 +308,7 @@ struct Camera {
 
     func rayAt(u: Real, v: Real) -> Ray {
         let rayDirection = lenseRadius * Vector3.randomInUnitDisk()
-        let offset = u * rayDirection.x  + v * rayDirection.y
+        let offset = self.u * rayDirection.x + self.v * rayDirection.y
         return Ray(
             origin: origin + offset,
             direction: simd_normalize(corner + (u * horizontal) + (v * vertical) - origin - offset)
@@ -314,58 +318,8 @@ struct Camera {
 
 
 struct RenderScene {
-    var camera: Camera = {
-        let lookFrom = Vector3(x: 3, y: 3, z: 2)
-        let lookAt = Vector3(x: 0, y: 0, z: -1)
-        let focusDistance = simd_length(lookFrom - lookAt)
-        return Camera(
-            lookFrom: lookFrom,
-            lookAt: lookAt,
-            vup: Vector3(x: 0, y: 1, z: 0),
-            fieldOfView: 20,
-            aspectRatio: 200.0 / 100.0,
-            aperature: 2,
-            focusDistance: focusDistance
-        )
-    }()
-    var world = HitableList(items: [
-        Sphere(
-            center: Vector3(x: 0, y: 0, z: -1),
-            radius: 0.5,
-            material: LambertianMaterial(
-                albedo: Vector3(x: 0.1, y: 0.2, z: 0.5)
-            )
-        ),
-        Sphere(
-            center: Vector3(x: 0, y: -100.5, z: -1),
-            radius: 100,
-            material: LambertianMaterial(
-                albedo: Vector3(x: 0.8, y: 0.8, z: 0.0)
-            )
-        ),
-        Sphere(
-            center: Vector3(x: 1, y: 0, z: -1),
-            radius: 0.5,
-            material: MetalMaterial(
-                albedo: Vector3(x: 0.8, y: 0.6, z: 0.2),
-                fuzz: 0.0
-            )
-        ),
-        Sphere(
-            center: Vector3(x: -1, y: 0, z: -1),
-            radius: 0.5,
-            material: DielectricMaterial(
-                refractionIndex: 1.5
-            )
-        ),
-        Sphere(
-            center: Vector3(x: -1, y: 0, z: -1),
-            radius: -0.45,
-            material: DielectricMaterial(
-                refractionIndex: 1.5
-            )
-        ),
-    ])
+    var camera: Camera
+    var world: Hitable
 }
 
 

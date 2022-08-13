@@ -15,6 +15,8 @@
 		FC225C7E28A6DC970016C3D5 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = FC225C6B28A6DC970016C3D5 /* Assets.xcassets */; };
 		FC225C8828A6DCFE0016C3D5 /* Renderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC225C8728A6DCFE0016C3D5 /* Renderer.swift */; };
 		FC225C8928A6DCFE0016C3D5 /* Renderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC225C8728A6DCFE0016C3D5 /* Renderer.swift */; };
+		FCC56AE628A8617F00F74307 /* Scenes.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCC56AE528A8617F00F74307 /* Scenes.swift */; };
+		FCC56AE728A8617F00F74307 /* Scenes.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCC56AE528A8617F00F74307 /* Scenes.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -25,6 +27,7 @@
 		FC225C7628A6DC970016C3D5 /* Liotta.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Liotta.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		FC225C7828A6DC970016C3D5 /* macOS.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = macOS.entitlements; sourceTree = "<group>"; };
 		FC225C8728A6DCFE0016C3D5 /* Renderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Renderer.swift; sourceTree = "<group>"; };
+		FCC56AE528A8617F00F74307 /* Scenes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Scenes.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -60,6 +63,7 @@
 				FC225C6928A6DC960016C3D5 /* LiottaApp.swift */,
 				FC225C6A28A6DC960016C3D5 /* ContentView.swift */,
 				FC225C8728A6DCFE0016C3D5 /* Renderer.swift */,
+				FCC56AE528A8617F00F74307 /* Scenes.swift */,
 				FC225C6B28A6DC970016C3D5 /* Assets.xcassets */,
 			);
 			path = Shared;
@@ -180,6 +184,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				FCC56AE628A8617F00F74307 /* Scenes.swift in Sources */,
 				FC225C7B28A6DC970016C3D5 /* ContentView.swift in Sources */,
 				FC225C8828A6DCFE0016C3D5 /* Renderer.swift in Sources */,
 				FC225C7928A6DC970016C3D5 /* LiottaApp.swift in Sources */,
@@ -190,6 +195,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				FCC56AE728A8617F00F74307 /* Scenes.swift in Sources */,
 				FC225C7C28A6DC970016C3D5 /* ContentView.swift in Sources */,
 				FC225C8928A6DCFE0016C3D5 /* Renderer.swift in Sources */,
 				FC225C7A28A6DC970016C3D5 /* LiottaApp.swift in Sources */,
