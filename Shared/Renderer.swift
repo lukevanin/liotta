@@ -249,27 +249,50 @@ struct Camera {
     var vertical: Vector3
     var origin: Vector3
     
-    init(fieldOfView: Real, aspectRatio: Real) {
+    init(
+        lookFrom: Vector3,
+        lookAt: Vector3,
+        vup: Vector3,
+        fieldOfView: Real,
+        aspectRatio: Real
+    ) {
         let theta = fieldOfView * .pi / 180
         let halfHeight = tan(theta / 2)
         let halfWidth = aspectRatio * halfHeight
-        self.corner = Vector3(x: -halfWidth, y: -halfHeight, z: -1.0)
-        self.horizontal = Vector3(x: 2 * halfWidth, y: 0, z: 0)
-        self.vertical = Vector3(x: 0, y: 2 * halfHeight, z: 0)
-        self.origin = .zero
+        let origin = lookFrom
+        let w = simd_normalize(lookFrom - lookAt) // view direction
+        let u = simd_normalize(simd_cross(vup, w)) // perpendicular to vup and view direction (view x-axis)
+        let v = simd_normalize(simd_cross(w, u)) // perpendicular to view direction and view x-axis (view y-axis)
+        let corner = origin - (halfWidth * u) - (halfHeight * v) - w
+        let horizontal = 2 * halfWidth * u
+        let vertical = 2 * halfHeight * v
+        logger.info("Camera origin \(origin)")
+        logger.info("Camera w (view direction) \(w)")
+        logger.info("Camera u (view horizontal axis) \(u)")
+        logger.info("Camera v (view vertical axis) \(u)")
+        self.origin = origin
+        self.corner = corner
+        self.horizontal = horizontal
+        self.vertical = vertical
     }
 
     func rayAt(u: Real, v: Real) -> Ray {
         Ray(
             origin: origin,
-            direction: simd_normalize(corner + (u * horizontal) + ((1 - v) * vertical))
+            direction: simd_normalize(corner + (u * horizontal) + (v * vertical) - origin)
         )
     }
 }
 
 
 struct RenderScene {
-    var camera = Camera(fieldOfView: 90, aspectRatio: 200.0 / 100.0)
+    var camera = Camera(
+        lookFrom: Vector3(x: -2, y: 2, z: 1),
+        lookAt: Vector3(x: 0, y: 0, z: -1),
+        vup: Vector3(x: 0, y: 1, z: 0),
+        fieldOfView: 20,
+        aspectRatio: 200.0 / 100.0
+    )
     var world = HitableList(items: [
         Sphere(
             center: Vector3(x: 0, y: 0, z: -1),
@@ -318,7 +341,7 @@ actor Renderer {
     struct Configuration {
         let width: Int
         let height: Int
-        let samplesPerPixel: Int = 1000
+        let samplesPerPixel: Int = 10000
         let samplesPerIteration: Int = 10
         let maximumBounces: Int = 50
     }
@@ -377,8 +400,8 @@ actor Renderer {
     }
     
     private func color(ray: Ray, world: Hitable, depth: Int = 0) -> Color {
+        primaryRayCount += 1
         if let hit = world.hit(ray: ray, tMin: 0.001, tMax: .greatestFiniteMagnitude), depth < configuration.maximumBounces {
-            primaryRayCount += 1
             if let output = hit.material.scatter(inputRay: ray, hit: hit) {
                 return output.attenuation * color(ray: output.ray, world: world, depth: depth + 1)
             }
@@ -408,7 +431,7 @@ actor Renderer {
     }
     
     private func index(x: Int, y: Int) -> Int {
-        (y * configuration.width) + x
+        ((configuration.height - y - 1) * configuration.width) + x
     }
     
     func makeImage() -> CGImage? {
@@ -465,7 +488,7 @@ actor Renderer {
         let raysPerSecond = Real(primaryRayCount) / elapsedTime
         logger.info("Samples per pixel \(self.sampleCount.formatted())")
         logger.info("Render time \(elapsedTime.formatted()) seconds")
-        logger.info("Primary rays \(self.primaryRayCount)")
+        logger.info("Primary rays \(self.primaryRayCount.formatted())")
         logger.info("Rays per second \(raysPerSecond.formatted())")
     }
 }
