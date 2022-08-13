@@ -24,12 +24,24 @@ extension Real {
 
 
 extension Vector3 {
+    
     static func randomInUnitSphere() -> Vector3 {
         var p = Vector3.zero
+        let origin = Vector3.one
         repeat {
             let r = Vector3(x: .random(), y: .random(), z: .random())
-            p = (2 * r) - .one
+            p = (2 * r) - origin
         } while simd_length_squared(p) >= 1
+        return p
+    }
+    
+    static func randomInUnitDisk() -> Vector3 {
+        var p = Vector3.zero
+        let origin = Vector3(x: 1, y: 1, z: 0)
+        repeat {
+            let r = Vector3(x: .random(), y: .random(), z: 0)
+            p = (2 * r) - origin
+        } while simd_dot(p, p) >= 1
         return p
     }
     
@@ -248,13 +260,19 @@ struct Camera {
     var horizontal: Vector3
     var vertical: Vector3
     var origin: Vector3
+    var u: Vector3
+    var v: Vector3
+    var w: Vector3
+    var lenseRadius: Real
     
     init(
         lookFrom: Vector3,
         lookAt: Vector3,
         vup: Vector3,
         fieldOfView: Real,
-        aspectRatio: Real
+        aspectRatio: Real,
+        aperature: Real,
+        focusDistance: Real
     ) {
         let theta = fieldOfView * .pi / 180
         let halfHeight = tan(theta / 2)
@@ -263,36 +281,53 @@ struct Camera {
         let w = simd_normalize(lookFrom - lookAt) // view direction
         let u = simd_normalize(simd_cross(vup, w)) // perpendicular to vup and view direction (view x-axis)
         let v = simd_normalize(simd_cross(w, u)) // perpendicular to view direction and view x-axis (view y-axis)
-        let corner = origin - (halfWidth * u) - (halfHeight * v) - w
-        let horizontal = 2 * halfWidth * u
-        let vertical = 2 * halfHeight * v
+        let xAxis = halfWidth * focusDistance * u
+        let yAxis = halfHeight * focusDistance * v
+        let corner = origin - xAxis - yAxis - (focusDistance * w)
+        let horizontal = 2 * xAxis
+        let vertical = 2 * yAxis
         logger.info("Camera origin \(origin)")
         logger.info("Camera w (view direction) \(w)")
         logger.info("Camera u (view horizontal axis) \(u)")
         logger.info("Camera v (view vertical axis) \(u)")
+        logger.info("Camera aperature \(aperature)")
+        logger.info("Camera focus distance \(focusDistance)")
         self.origin = origin
         self.corner = corner
         self.horizontal = horizontal
         self.vertical = vertical
+        self.u = u
+        self.v = v
+        self.w = w
+        self.lenseRadius = aperature / 2
     }
 
     func rayAt(u: Real, v: Real) -> Ray {
-        Ray(
-            origin: origin,
-            direction: simd_normalize(corner + (u * horizontal) + (v * vertical) - origin)
+        let rayDirection = lenseRadius * Vector3.randomInUnitDisk()
+        let offset = u * rayDirection.x  + v * rayDirection.y
+        return Ray(
+            origin: origin + offset,
+            direction: simd_normalize(corner + (u * horizontal) + (v * vertical) - origin - offset)
         )
     }
 }
 
 
 struct RenderScene {
-    var camera = Camera(
-        lookFrom: Vector3(x: -2, y: 2, z: 1),
-        lookAt: Vector3(x: 0, y: 0, z: -1),
-        vup: Vector3(x: 0, y: 1, z: 0),
-        fieldOfView: 20,
-        aspectRatio: 200.0 / 100.0
-    )
+    var camera: Camera = {
+        let lookFrom = Vector3(x: 3, y: 3, z: 2)
+        let lookAt = Vector3(x: 0, y: 0, z: -1)
+        let focusDistance = simd_length(lookFrom - lookAt)
+        return Camera(
+            lookFrom: lookFrom,
+            lookAt: lookAt,
+            vup: Vector3(x: 0, y: 1, z: 0),
+            fieldOfView: 20,
+            aspectRatio: 200.0 / 100.0,
+            aperature: 2,
+            focusDistance: focusDistance
+        )
+    }()
     var world = HitableList(items: [
         Sphere(
             center: Vector3(x: 0, y: 0, z: -1),
