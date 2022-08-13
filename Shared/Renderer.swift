@@ -32,6 +32,16 @@ extension Vector3 {
         } while simd_length_squared(p) >= 1
         return p
     }
+    
+    static func refract(v: Vector3, n: Vector3, niOverNt: Real) -> Vector3? {
+        let uv = simd_normalize(v)
+        let dt = simd_dot(uv, n)
+        let discriminant = 1.0 - niOverNt * niOverNt * (1.0 - dt * dt)
+        guard discriminant > 0 else {
+            return nil
+        }
+        return niOverNt * (uv - n * dt) - n * sqrt(discriminant)
+    }
 }
 
 
@@ -65,8 +75,8 @@ struct LambertianMaterial: Material {
 
 struct MetalMaterial: Material {
     
-    let albedo: Vector3
-    let fuzz: Real
+    var albedo: Vector3
+    var fuzz: Real
     
     func scatter(inputRay: Ray, hit: HitRecord) -> ScatterRay? {
         let reflected = simd_reflect(inputRay.direction, hit.normal)
@@ -75,9 +85,64 @@ struct MetalMaterial: Material {
             return nil
         }
         return ScatterRay(
-            ray: Ray(origin: hit.p, direction: direction),
+            ray: Ray(origin: hit.p, direction: simd_normalize(direction)),
             attenuation: albedo
         )
+    }
+}
+
+
+struct DielectricMaterial: Material {
+    
+    var refractionIndex: Real
+    
+    func scatter(inputRay: Ray, hit: HitRecord) -> ScatterRay? {
+        let attenuation = Vector3(x: 1.0, y: 1.0, z: 1.0)
+        let outwardNormal: Vector3
+        let niOverNt: Real
+        let cosine: Real
+        let rayDotNormal = simd_dot(inputRay.direction, hit.normal)
+        
+        if rayDotNormal > 0 {
+            outwardNormal = -hit.normal
+            niOverNt = refractionIndex
+            cosine = refractionIndex * rayDotNormal
+        }
+        else {
+            outwardNormal = hit.normal
+            niOverNt = 1.0 / refractionIndex
+            cosine = -rayDotNormal
+        }
+        
+        if let refracted = Vector3.refract(v: inputRay.direction, n: outwardNormal, niOverNt: niOverNt) {
+            let reflectionProbability = schlick(cosine: cosine)
+            if Real.random() < reflectionProbability {
+                let reflected = simd_reflect(inputRay.direction, hit.normal)
+                return ScatterRay(
+                    ray: Ray(origin: hit.p, direction: simd_normalize(reflected)),
+                    attenuation: attenuation
+                )
+            }
+            else {
+                return ScatterRay(
+                    ray: Ray(origin: hit.p, direction: simd_normalize(refracted)),
+                    attenuation: attenuation
+                )
+            }
+        }
+        else {
+            let reflected = simd_reflect(inputRay.direction, hit.normal)
+            return ScatterRay(
+                ray: Ray(origin: hit.p, direction: simd_normalize(reflected)),
+                attenuation: attenuation
+            )
+        }
+    }
+    
+    private func schlick(cosine: Real) -> Real {
+        let r = (1 - refractionIndex) / (1 + refractionIndex)
+        let r0 = r * r
+        return r0 + (1 - r0) * pow((1 - cosine), 5)
     }
 }
 
@@ -121,36 +186,38 @@ struct Sphere: Hitable {
     var material: Material
     
     func hit(ray: Ray, tMin: Real, tMax: Real) -> HitRecord? {
-        let oc: Vector3 = ray.origin - center
+        let oc = ray.origin - center
         let a = simd_dot(ray.direction, ray.direction)
         let b = simd_dot(oc, ray.direction)
         let c = simd_dot(oc, oc) - (radius * radius)
         let discriminant = (b * b) - (a * c)
-        if discriminant > 0 {
-            let s = sqrt(discriminant)
-            var temp: Real
-            
-            temp = (-b - s) / a
-            if temp > tMin && temp < tMax {
-                let p = ray.point(at: temp)
-                return HitRecord(
-                    t: temp,
-                    p: p,
-                    normal: simd_normalize(p - center),
-                    material: material
-                )
-            }
-            
-            temp = (-b + s) / a
-            if temp > tMin && temp < tMax {
-                let p = ray.point(at: temp)
-                return HitRecord(
-                    t: temp,
-                    p: p,
-                    normal: simd_normalize(p - center),
-                    material: material
-                )
-            }
+        guard discriminant > 0 else {
+            return nil
+        }
+        
+        let s = sqrt(discriminant)
+        var temp: Real
+        
+        temp = (-b - s) / a
+        if temp > tMin && temp < tMax {
+            let p = ray.point(at: temp)
+            return HitRecord(
+                t: temp,
+                p: p,
+                normal: simd_normalize((p - center) / radius),
+                material: material
+            )
+        }
+        
+        temp = (-b + s) / a
+        if temp > tMin && temp < tMax {
+            let p = ray.point(at: temp)
+            return HitRecord(
+                t: temp,
+                p: p,
+                normal: simd_normalize((p - center) / radius),
+                material: material
+            )
         }
         
         return nil
@@ -185,7 +252,7 @@ struct Camera {
     func rayAt(u: Real, v: Real) -> Ray {
         Ray(
             origin: origin,
-            direction: corner + (u * horizontal) + ((1 - v) * vertical)
+            direction: simd_normalize(corner + (u * horizontal) + ((1 - v) * vertical))
         )
     }
 }
@@ -198,7 +265,7 @@ struct RenderScene {
             center: Vector3(x: 0, y: 0, z: -1),
             radius: 0.5,
             material: LambertianMaterial(
-                albedo: Vector3(x: 0.8, y: 0.3, z: 0.3)
+                albedo: Vector3(x: 0.1, y: 0.2, z: 0.5)
             )
         ),
         Sphere(
@@ -213,15 +280,21 @@ struct RenderScene {
             radius: 0.5,
             material: MetalMaterial(
                 albedo: Vector3(x: 0.8, y: 0.6, z: 0.2),
-                fuzz: 1.0
+                fuzz: 0.0
             )
         ),
         Sphere(
             center: Vector3(x: -1, y: 0, z: -1),
             radius: 0.5,
-            material: MetalMaterial(
-                albedo: Vector3(x: 0.8, y: 0.8, z: 0.8),
-                fuzz: 0.3
+            material: DielectricMaterial(
+                refractionIndex: 1.5
+            )
+        ),
+        Sphere(
+            center: Vector3(x: -1, y: 0, z: -1),
+            radius: -0.45,
+            material: DielectricMaterial(
+                refractionIndex: 1.5
             )
         ),
     ])
@@ -235,7 +308,7 @@ actor Renderer {
     struct Configuration {
         let width: Int
         let height: Int
-        let samplesPerPixel: Int = 100
+        let samplesPerPixel: Int = 1000
         let samplesPerIteration: Int = 10
         let maximumBounces: Int = 50
     }
@@ -379,9 +452,11 @@ actor Renderer {
     func logStats() {
         let endTime = Date()
         let elapsedTime = endTime.timeIntervalSince(startTime)
+        let raysPerSecond = Real(primaryRayCount) / elapsedTime
         logger.info("Samples per pixel \(self.sampleCount.formatted())")
         logger.info("Render time \(elapsedTime.formatted()) seconds")
         logger.info("Primary rays \(self.primaryRayCount)")
+        logger.info("Rays per second \(raysPerSecond.formatted())")
     }
 }
 
