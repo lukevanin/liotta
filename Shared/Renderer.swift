@@ -244,10 +244,20 @@ struct HitableList: Hitable {
 
 
 struct Camera {
-    var corner: Vector3 = Vector3(x: -2.0, y: -1.0, z: -1.0)
-    var horizontal: Vector3 = Vector3(x: 4.0, y: 0.0, z: 0.0)
-    var vertical: Vector3 = Vector3(x: 0.0, y: 2.0, z: 0.0)
-    var origin: Vector3 = Vector3(x: 0.0, y: 0.0, z: 0.0)
+    var corner: Vector3
+    var horizontal: Vector3
+    var vertical: Vector3
+    var origin: Vector3
+    
+    init(fieldOfView: Real, aspectRatio: Real) {
+        let theta = fieldOfView * .pi / 180
+        let halfHeight = tan(theta / 2)
+        let halfWidth = aspectRatio * halfHeight
+        self.corner = Vector3(x: -halfWidth, y: -halfHeight, z: -1.0)
+        self.horizontal = Vector3(x: 2 * halfWidth, y: 0, z: 0)
+        self.vertical = Vector3(x: 0, y: 2 * halfHeight, z: 0)
+        self.origin = .zero
+    }
 
     func rayAt(u: Real, v: Real) -> Ray {
         Ray(
@@ -259,7 +269,7 @@ struct Camera {
 
 
 struct RenderScene {
-    var camera = Camera()
+    var camera = Camera(fieldOfView: 90, aspectRatio: 200.0 / 100.0)
     var world = HitableList(items: [
         Sphere(
             center: Vector3(x: 0, y: 0, z: -1),
