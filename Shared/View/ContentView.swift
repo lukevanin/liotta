@@ -5,7 +5,7 @@ struct ContentView: View {
     @ObservedObject var controller = RenderController(
         manager: RenderManager(
             concurrency: 2,
-            scene: makeChapter11Scene(),
+            scene: makeChapter12Scene(),
             width: 400, height: 200,
             configuration: Renderer.Configuration()
         )

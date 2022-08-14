@@ -1,7 +1,7 @@
 import Foundation
 
 
-actor RenderManager {
+final class RenderManager {
     
     typealias ImageCallback = (CGImage) -> Void
     
@@ -10,19 +10,25 @@ actor RenderManager {
     private var rayCount: Int
     private var duration: TimeInterval
     
+    private let lock = NSRecursiveLock()
     private let concurrency: Int
     private let tempCanvas: Canvas
     private let outputCanvas: Canvas
 
     init(concurrency: Int, scene: RenderScene, width: Int, height: Int, configuration: Renderer.Configuration) {
+        logger.info("Renderer concurrency \(concurrency)")
+        logger.info("Renderer viewport \(width)x\(height)")
         self.concurrency = concurrency
         self.tempCanvas = Canvas(width: width, height: height)
         self.outputCanvas = Canvas(width: width, height: height)
         self.renderCount = 0
         self.rayCount = 0
         self.duration = 0
-        for _ in 0 ..< concurrency {
-            Task.detached(priority: .high) {
+        for i in 0 ..< concurrency {
+            // let queue = DispatchQueue.global(qos: .userInitiated)
+            let queue = DispatchQueue(label: "render-\(i)")
+            queue.async {
+            // Task.detached(priority: .high) {
                 let canvas = Canvas(width: width, height: height)
                 let renderer = Renderer(scene: scene, canvas: canvas, configuration: configuration)
                 while true {
@@ -30,12 +36,14 @@ actor RenderManager {
                     renderer.render()
                     let endTime = Date()
                     let duration = endTime.timeIntervalSince(startTime)
-                    await self.updateOutput(
+                    self.lock.lock()
+                    self.updateOutput(
                         canvas: canvas,
                         sampleCount: renderer.sampleCount,
                         duration: duration,
                         rayCount: renderer.rayCount
                     )
+                    self.lock.unlock()
                 }
             }
         }
@@ -64,7 +72,6 @@ actor RenderManager {
         for i in 0 ..< tempCanvas.buffer.count {
             outputCanvas.buffer[i] = tempCanvas.buffer[i] * r
         }
-        
         
         if let imageCallback = imageCallback, let image = makeImage() {
             imageCallback(image)

@@ -66,7 +66,7 @@ final class Renderer {
     
     struct Configuration {
         let samplesPerPixel: Int = 10000
-        let samplesPerIteration: Int = 2
+        let samplesPerIteration: Int = 10
         let maximumBounces: Int = 50
     }
     
