@@ -19,6 +19,24 @@
 		FCC56AE728A8617F00F74307 /* Scenes.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCC56AE528A8617F00F74307 /* Scenes.swift */; };
 		FCC56AE928A9363B00F74307 /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = FCC56AE828A9363B00F74307 /* README.md */; };
 		FCC56AEA28A9363B00F74307 /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = FCC56AE828A9363B00F74307 /* README.md */; };
+		FCC56AEC28A9386300F74307 /* LambertianMaterial.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCC56AEB28A9386300F74307 /* LambertianMaterial.swift */; };
+		FCC56AED28A9386300F74307 /* LambertianMaterial.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCC56AEB28A9386300F74307 /* LambertianMaterial.swift */; };
+		FCC56AEF28A9387400F74307 /* MetalMaterial.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCC56AEE28A9387400F74307 /* MetalMaterial.swift */; };
+		FCC56AF028A9387400F74307 /* MetalMaterial.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCC56AEE28A9387400F74307 /* MetalMaterial.swift */; };
+		FCC56AF228A9388500F74307 /* DielectricMaterial.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCC56AF128A9388500F74307 /* DielectricMaterial.swift */; };
+		FCC56AF328A9388500F74307 /* DielectricMaterial.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCC56AF128A9388500F74307 /* DielectricMaterial.swift */; };
+		FCC56AF528A9389800F74307 /* Sphere.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCC56AF428A9389800F74307 /* Sphere.swift */; };
+		FCC56AF628A9389800F74307 /* Sphere.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCC56AF428A9389800F74307 /* Sphere.swift */; };
+		FCC56AF828A938D800F74307 /* HitableList.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCC56AF728A938D800F74307 /* HitableList.swift */; };
+		FCC56AF928A938D800F74307 /* HitableList.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCC56AF728A938D800F74307 /* HitableList.swift */; };
+		FCC56AFB28A938E700F74307 /* Camera.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCC56AFA28A938E700F74307 /* Camera.swift */; };
+		FCC56AFC28A938E700F74307 /* Camera.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCC56AFA28A938E700F74307 /* Camera.swift */; };
+		FCC56AFE28A9391400F74307 /* Vector3.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCC56AFD28A9391400F74307 /* Vector3.swift */; };
+		FCC56AFF28A9391400F74307 /* Vector3.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCC56AFD28A9391400F74307 /* Vector3.swift */; };
+		FCC56B0128A9392B00F74307 /* Real.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCC56B0028A9392B00F74307 /* Real.swift */; };
+		FCC56B0228A9392B00F74307 /* Real.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCC56B0028A9392B00F74307 /* Real.swift */; };
+		FCC56B0428A9394700F74307 /* RenderController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCC56B0328A9394700F74307 /* RenderController.swift */; };
+		FCC56B0528A9394700F74307 /* RenderController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCC56B0328A9394700F74307 /* RenderController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -31,6 +49,15 @@
 		FC225C8728A6DCFE0016C3D5 /* Renderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Renderer.swift; sourceTree = "<group>"; };
 		FCC56AE528A8617F00F74307 /* Scenes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Scenes.swift; sourceTree = "<group>"; };
 		FCC56AE828A9363B00F74307 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
+		FCC56AEB28A9386300F74307 /* LambertianMaterial.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LambertianMaterial.swift; sourceTree = "<group>"; };
+		FCC56AEE28A9387400F74307 /* MetalMaterial.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MetalMaterial.swift; sourceTree = "<group>"; };
+		FCC56AF128A9388500F74307 /* DielectricMaterial.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DielectricMaterial.swift; sourceTree = "<group>"; };
+		FCC56AF428A9389800F74307 /* Sphere.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sphere.swift; sourceTree = "<group>"; };
+		FCC56AF728A938D800F74307 /* HitableList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HitableList.swift; sourceTree = "<group>"; };
+		FCC56AFA28A938E700F74307 /* Camera.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Camera.swift; sourceTree = "<group>"; };
+		FCC56AFD28A9391400F74307 /* Vector3.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Vector3.swift; sourceTree = "<group>"; };
+		FCC56B0028A9392B00F74307 /* Real.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Real.swift; sourceTree = "<group>"; };
+		FCC56B0328A9394700F74307 /* RenderController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RenderController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -64,10 +91,8 @@
 		FC225C6828A6DC960016C3D5 /* Shared */ = {
 			isa = PBXGroup;
 			children = (
-				FC225C6928A6DC960016C3D5 /* LiottaApp.swift */,
-				FC225C6A28A6DC960016C3D5 /* ContentView.swift */,
-				FC225C8728A6DCFE0016C3D5 /* Renderer.swift */,
-				FCC56AE528A8617F00F74307 /* Scenes.swift */,
+				FCC56B0628A9396100F74307 /* View */,
+				FCC56B0728A9396900F74307 /* Renderer */,
 				FC225C6B28A6DC970016C3D5 /* Assets.xcassets */,
 			);
 			path = Shared;
@@ -88,6 +113,49 @@
 				FC225C7828A6DC970016C3D5 /* macOS.entitlements */,
 			);
 			path = macOS;
+			sourceTree = "<group>";
+		};
+		FCC56B0628A9396100F74307 /* View */ = {
+			isa = PBXGroup;
+			children = (
+				FC225C6928A6DC960016C3D5 /* LiottaApp.swift */,
+				FC225C6A28A6DC960016C3D5 /* ContentView.swift */,
+				FCC56AE528A8617F00F74307 /* Scenes.swift */,
+			);
+			path = View;
+			sourceTree = "<group>";
+		};
+		FCC56B0728A9396900F74307 /* Renderer */ = {
+			isa = PBXGroup;
+			children = (
+				FC225C8728A6DCFE0016C3D5 /* Renderer.swift */,
+				FCC56B0328A9394700F74307 /* RenderController.swift */,
+				FCC56AFD28A9391400F74307 /* Vector3.swift */,
+				FCC56B0028A9392B00F74307 /* Real.swift */,
+				FCC56AFA28A938E700F74307 /* Camera.swift */,
+				FCC56B0928A9398500F74307 /* Material */,
+				FCC56B0828A9397700F74307 /* Hitable */,
+			);
+			path = Renderer;
+			sourceTree = "<group>";
+		};
+		FCC56B0828A9397700F74307 /* Hitable */ = {
+			isa = PBXGroup;
+			children = (
+				FCC56AF428A9389800F74307 /* Sphere.swift */,
+				FCC56AF728A938D800F74307 /* HitableList.swift */,
+			);
+			path = Hitable;
+			sourceTree = "<group>";
+		};
+		FCC56B0928A9398500F74307 /* Material */ = {
+			isa = PBXGroup;
+			children = (
+				FCC56AF128A9388500F74307 /* DielectricMaterial.swift */,
+				FCC56AEE28A9387400F74307 /* MetalMaterial.swift */,
+				FCC56AEB28A9386300F74307 /* LambertianMaterial.swift */,
+			);
+			path = Material;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -190,9 +258,18 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				FCC56AFE28A9391400F74307 /* Vector3.swift in Sources */,
+				FCC56B0128A9392B00F74307 /* Real.swift in Sources */,
+				FCC56AF828A938D800F74307 /* HitableList.swift in Sources */,
 				FCC56AE628A8617F00F74307 /* Scenes.swift in Sources */,
 				FC225C7B28A6DC970016C3D5 /* ContentView.swift in Sources */,
+				FCC56AEF28A9387400F74307 /* MetalMaterial.swift in Sources */,
+				FCC56B0428A9394700F74307 /* RenderController.swift in Sources */,
+				FCC56AEC28A9386300F74307 /* LambertianMaterial.swift in Sources */,
 				FC225C8828A6DCFE0016C3D5 /* Renderer.swift in Sources */,
+				FCC56AFB28A938E700F74307 /* Camera.swift in Sources */,
+				FCC56AF228A9388500F74307 /* DielectricMaterial.swift in Sources */,
+				FCC56AF528A9389800F74307 /* Sphere.swift in Sources */,
 				FC225C7928A6DC970016C3D5 /* LiottaApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -201,9 +278,18 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				FCC56AFF28A9391400F74307 /* Vector3.swift in Sources */,
+				FCC56B0228A9392B00F74307 /* Real.swift in Sources */,
+				FCC56AF928A938D800F74307 /* HitableList.swift in Sources */,
 				FCC56AE728A8617F00F74307 /* Scenes.swift in Sources */,
 				FC225C7C28A6DC970016C3D5 /* ContentView.swift in Sources */,
+				FCC56AF028A9387400F74307 /* MetalMaterial.swift in Sources */,
+				FCC56B0528A9394700F74307 /* RenderController.swift in Sources */,
+				FCC56AED28A9386300F74307 /* LambertianMaterial.swift in Sources */,
 				FC225C8928A6DCFE0016C3D5 /* Renderer.swift in Sources */,
+				FCC56AFC28A938E700F74307 /* Camera.swift in Sources */,
+				FCC56AF328A9388500F74307 /* DielectricMaterial.swift in Sources */,
+				FCC56AF628A9389800F74307 /* Sphere.swift in Sources */,
 				FC225C7A28A6DC970016C3D5 /* LiottaApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
