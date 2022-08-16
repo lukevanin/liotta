@@ -20,6 +20,8 @@ On my 2020 M1 MacBook Pro, the renderer casts ~280k rays per second per CPU core
 Using two CPU cores is twice as fast at about 560k rays per second, and so on as more cores are used.
 When three or more cores are used, the MacBook starts to heat up within a few seconds, as evidenced by the audible increase in the fan speed.
 Two cores seems to be the practical sustainable limit, exhibiting only mild increases in fan whooshing.
+For now, multi-threading is implemented with `Thread` and `os_unfair_lock`.
+Initial experiements with using `actor` and `Task` for concurrency were hampered by thread locking issues - I intend to revisit this at some point in the future. 
 * The book uses `drand48()` to produce random numbers.
 This app only uses this random number generator for creating scenes.
 Rendering noise is generated using a variant of Gold Noise, for extra raw performance and to avoid locking with multi-threading.  
