@@ -1,4 +1,84 @@
 import Foundation
+import OSLog
+
+
+private let workerLog = OSLog(subsystem: "render", category: "worker")
+private let workerEventLog = OSLog(subsystem: "render", category: .pointsOfInterest)
+
+
+struct RenderResult {
+    let renderId: Int
+    let canvas: Canvas
+    let duration: TimeInterval
+    let rayCount: Int
+    let sampleCount: Int
+}
+
+
+final class RenderWorker {
+    
+    typealias ResultHandler = (RenderResult) -> Void
+    
+    private var thread: Thread?
+    
+    init(
+        id: Int,
+        viewport: Viewport,
+        scene: RenderScene,
+        configuration: Renderer.Configuration,
+        handler: @escaping ResultHandler
+    ) {
+        let signpostId = OSSignpostID(log: workerLog, object: self)
+        thread = Thread {
+//        Thread.detachNewThread {
+            Thread.setThreadPriority(1.0)
+            let scene = scene.copy()
+            let configuration = configuration.copy()
+            let canvas = Canvas(width: viewport.width, height: viewport.height)
+            let output = Canvas(width: viewport.width, height: viewport.height)
+            let n = Real(id + 2)
+            let renderer = Renderer(
+                samplesPerPixel: (n * n) * 1,
+                scene: scene,
+                canvas: canvas,
+                configuration: configuration
+            )
+            while Thread.current.isCancelled == false {
+                os_signpost(.begin, log: workerLog, name: "Render", signpostID: signpostId)
+//                let startTime = CFAbsoluteTimeGetCurrent()
+                renderer.render()
+//                let endTime = CFAbsoluteTimeGetCurrent()
+//                let duration = endTime - startTime
+//                os_signpost(.event, log: workerEventLog, name: "render", signpostID: signpostId, "duration %d", duration)
+                os_signpost(.end, log: workerLog, name: "Render", signpostID: signpostId)
+
+                // Copy the canvas from the renderer. Compute the average of each pixel
+                // for the number of samples so far.
+                for i in 0 ..< output.buffer.count {
+                    output.buffer[i] = canvas.buffer[i] // / Real(renderer.sampleCount)
+                }
+
+                let result = RenderResult(
+                    renderId: id,
+                    canvas: output,
+                    duration: 0, //duration,
+                    rayCount: renderer.rayCount,
+                    sampleCount: renderer.sampleCount
+                )
+                handler(result)
+
+            }
+            Thread.exit()
+        }
+        thread?.name = "Render Worker \(id)"
+        thread?.qualityOfService = .userInteractive
+        thread?.start()
+    }
+    
+    deinit {
+        thread?.cancel()
+    }
+}
 
 
 final class RenderManager {
@@ -7,45 +87,42 @@ final class RenderManager {
     
     private var imageCallback: ImageCallback?
     private var renderCount: Int
-    private var rayCount: Int
-    private var duration: TimeInterval
+    private var totalSamples: Int
+    private var totalRays: Int
+    private var raysPerSecond: Double
+    private var startTime: TimeInterval
+    private var workers = [RenderWorker]()
     
-    private let lock = NSRecursiveLock()
+    private var lock = os_unfair_lock()
     private let concurrency: Int
     private let tempCanvas: Canvas
     private let outputCanvas: Canvas
 
-    init(concurrency: Int, scene: RenderScene, width: Int, height: Int, configuration: Renderer.Configuration) {
+    init(concurrency: Int, scene: RenderScene, viewport: Viewport, configuration: Renderer.Configuration) {
         logger.info("Renderer concurrency \(concurrency)")
-        logger.info("Renderer viewport \(width)x\(height)")
+        logger.info("Renderer viewport \(viewport.width)x\(viewport.height)")
         self.concurrency = concurrency
-        self.tempCanvas = Canvas(width: width, height: height)
-        self.outputCanvas = Canvas(width: width, height: height)
+        self.tempCanvas = Canvas(width: viewport.width, height: viewport.height)
+        self.outputCanvas = Canvas(width: viewport.width, height: viewport.height)
         self.renderCount = 0
-        self.rayCount = 0
-        self.duration = 0
+        self.raysPerSecond = 0
+        self.totalRays = 0
+        self.totalSamples = 0
+        self.startTime = CFAbsoluteTimeGetCurrent()
         for i in 0 ..< concurrency {
-            // let queue = DispatchQueue.global(qos: .userInitiated)
-            let queue = DispatchQueue(label: "render-\(i)")
-            queue.async {
-            // Task.detached(priority: .high) {
-                let canvas = Canvas(width: width, height: height)
-                let renderer = Renderer(scene: scene, canvas: canvas, configuration: configuration)
-                while true {
-                    let startTime = Date()
-                    renderer.render()
-                    let endTime = Date()
-                    let duration = endTime.timeIntervalSince(startTime)
-                    self.lock.lock()
-                    self.updateOutput(
-                        canvas: canvas,
-                        sampleCount: renderer.sampleCount,
-                        duration: duration,
-                        rayCount: renderer.rayCount
-                    )
-                    self.lock.unlock()
+            let worker = RenderWorker(
+                id: i,
+                viewport: viewport,
+                scene: scene,
+                configuration: configuration,
+                handler: { [weak self] result in
+                    guard let self = self else {
+                        return
+                    }
+                    self.updateOutput(result)
                 }
-            }
+            )
+            workers.append(worker)
         }
     }
     
@@ -53,37 +130,63 @@ final class RenderManager {
         self.imageCallback = imageCallback
     }
     
-    private func updateOutput(
-        canvas: Canvas,
-        sampleCount: Int,
-        duration: TimeInterval,
-        rayCount: Int
-    ) {
+    private func updateOutput(_ result: RenderResult) {
+//        self.lock.lock()
+        os_unfair_lock_lock(&lock)
         renderCount += 1
-        let s = 1 / Real(sampleCount)
-        let r = 1 / Real(renderCount)
+        totalSamples += result.sampleCount
+
         // Copy the canvas from the renderer. Compute the average of each pixel
         // for the number of samples so far.
         for i in 0 ..< tempCanvas.buffer.count {
-            tempCanvas.buffer[i] += canvas.buffer[i] * s
+            tempCanvas.buffer[i] += result.canvas.buffer[i]
         }
+        
         // Copy the temp canvas to the output canvas. For each pixel, compute
         // the average over the number of renders.
-        for i in 0 ..< tempCanvas.buffer.count {
-            outputCanvas.buffer[i] = tempCanvas.buffer[i] * r
+//        var minColor = +Real.greatestFiniteMagnitude
+//        var maxColor = -Real.greatestFiniteMagnitude
+        for i in 0 ..< outputCanvas.buffer.count {
+//            let color = tempCanvas.buffer[i] / Real(renderCount)
+//            minColor = min(minColor, color.x, color.y, color.z)
+//            maxColor = max(maxColor, color.x, color.y, color.z)
+            let color = tempCanvas.buffer[i] / Real(totalSamples)
+            outputCanvas.buffer[i] = color
         }
         
-        if let imageCallback = imageCallback, let image = makeImage() {
-            imageCallback(image)
-        }
+//        let colorRange = 1 / (maxColor - minColor)
+//        for i in 0 ..< outputCanvas.buffer.count {
+//            let color = (outputCanvas.buffer[i] - minColor) * colorRange
+//            outputCanvas.buffer[i] = color
+//        }
         
-        self.duration += duration
-        self.rayCount += rayCount
-        let raysPerSecond = Real(rayCount) / duration
-        logger.info("Render #\(self.renderCount.formatted())")
-        logger.info("Duration \(self.duration.formatted()) seconds")
-        logger.info("Rays \(self.rayCount.formatted())")
-        logger.info("Rays per second \(raysPerSecond.formatted())")
+        let image = makeImage()
+        
+        let workerRaysPerSecond = Real(result.rayCount) / result.duration
+        self.totalRays += result.rayCount
+        self.raysPerSecond += workerRaysPerSecond
+        os_unfair_lock_unlock(&lock)
+//        self.lock.unlock()
+
+        // let averageRaysPerSecond = raysPerSecond / Real(renderCount)
+        let totalTime = CFAbsoluteTimeGetCurrent() - startTime
+        let averageRaysPerSecond = Real(totalRays) / totalTime
+
+        logger.info("Average rays per second \(averageRaysPerSecond.formatted())")
+
+        DispatchQueue.main.async {
+            
+            if let image = image {
+                self.imageCallback?(image)
+            }
+
+//            logger.info("Render #\(self.renderCount.formatted()) (worker \(result.renderId))")
+//            logger.info("Worker duration \(result.duration.formatted()) seconds")
+//            logger.info("Worker rays \(result.rayCount.formatted())")
+//            logger.info("Worker rays per second \(workerRaysPerSecond.formatted())")
+//            logger.info("Total time \(totalTime.formatted()) seconds")
+//            logger.info("Total rays \(self.totalRays.formatted())")
+        }
     }
     
     func makeImage() -> CGImage? {
@@ -92,7 +195,7 @@ final class RenderManager {
 }
 
 
-@MainActor final class RenderController: ObservableObject {
+final class RenderController: ObservableObject {
     
     @Published var image: CGImage?
     
@@ -109,11 +212,9 @@ final class RenderManager {
             return
         }
         running = true
-        Task.detached {
-            await self.manager.onImage { image in
-                Task {
-                    await self.setImage(image)
-                }
+        self.manager.onImage { image in
+            DispatchQueue.main.async {
+                self.setImage(image)
             }
         }
     }

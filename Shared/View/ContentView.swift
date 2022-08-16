@@ -2,14 +2,7 @@ import SwiftUI
 
 struct ContentView: View {
     
-    @ObservedObject var controller = RenderController(
-        manager: RenderManager(
-            concurrency: 2,
-            scene: makeChapter12Scene(),
-            width: 400, height: 200,
-            configuration: Renderer.Configuration()
-        )
-    )
+    @EnvironmentObject var controller: RenderController
     
     var body: some View {
         ZStack {

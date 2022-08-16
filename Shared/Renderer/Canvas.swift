@@ -26,6 +26,22 @@ final class Canvas {
     func clear(_ value: Color = .zero) {
         buffer.assign(repeating: value)
     }
+    
+    func copy(from canvas: Canvas) {
+        guard canvas.width == width else {
+            fatalError()
+        }
+        guard canvas.height == height else {
+            fatalError()
+        }
+        guard let target = buffer.baseAddress else {
+            fatalError()
+        }
+        guard let source = canvas.buffer.baseAddress else {
+            fatalError()
+        }
+        target.assign(from: source, count: buffer.count)
+    }
 
     func getPixel(x: Int, y: Int) -> Color {
         buffer[index(x: x, y: y)]
@@ -78,9 +94,9 @@ extension Canvas {
     }
     
     private func pixel(from color: Color) -> Pixel {
-        Pixel(color.z * 255.99) << 0x10 |
-        Pixel(color.y * 255.99) << 0x08 |
-        Pixel(color.x * 255.99) << 0x00
+        (Pixel(color.z * 255.99) & 0xff) << 0x10 |
+        (Pixel(color.y * 255.99) & 0xff) << 0x08 |
+        (Pixel(color.x * 255.99) & 0xff) << 0x00
     }
     
     private func correctGamma(_ input: Color) -> Color {

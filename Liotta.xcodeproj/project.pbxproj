@@ -39,6 +39,10 @@
 		FCC56B0528A9394700F74307 /* RenderController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCC56B0328A9394700F74307 /* RenderController.swift */; };
 		FCC56B0B28A9467C00F74307 /* Canvas.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCC56B0A28A9467C00F74307 /* Canvas.swift */; };
 		FCC56B0C28A9467C00F74307 /* Canvas.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCC56B0A28A9467C00F74307 /* Canvas.swift */; };
+		FCC56B0E28AA4BC500F74307 /* NoMaterial.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCC56B0D28AA4BC500F74307 /* NoMaterial.swift */; };
+		FCC56B0F28AA4BC500F74307 /* NoMaterial.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCC56B0D28AA4BC500F74307 /* NoMaterial.swift */; };
+		FCC56B1128AACBC500F74307 /* Random.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCC56B1028AACBC500F74307 /* Random.swift */; };
+		FCC56B1228AACBC500F74307 /* Random.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCC56B1028AACBC500F74307 /* Random.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -61,6 +65,8 @@
 		FCC56B0028A9392B00F74307 /* Real.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Real.swift; sourceTree = "<group>"; };
 		FCC56B0328A9394700F74307 /* RenderController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RenderController.swift; sourceTree = "<group>"; };
 		FCC56B0A28A9467C00F74307 /* Canvas.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Canvas.swift; sourceTree = "<group>"; };
+		FCC56B0D28AA4BC500F74307 /* NoMaterial.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoMaterial.swift; sourceTree = "<group>"; };
+		FCC56B1028AACBC500F74307 /* Random.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Random.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -136,6 +142,7 @@
 				FCC56B0A28A9467C00F74307 /* Canvas.swift */,
 				FCC56AFD28A9391400F74307 /* Vector3.swift */,
 				FCC56B0028A9392B00F74307 /* Real.swift */,
+				FCC56B1028AACBC500F74307 /* Random.swift */,
 				FCC56AFA28A938E700F74307 /* Camera.swift */,
 				FCC56B0928A9398500F74307 /* Material */,
 				FCC56B0828A9397700F74307 /* Hitable */,
@@ -146,8 +153,8 @@
 		FCC56B0828A9397700F74307 /* Hitable */ = {
 			isa = PBXGroup;
 			children = (
-				FCC56AF428A9389800F74307 /* Sphere.swift */,
 				FCC56AF728A938D800F74307 /* HitableList.swift */,
+				FCC56AF428A9389800F74307 /* Sphere.swift */,
 			);
 			path = Hitable;
 			sourceTree = "<group>";
@@ -156,8 +163,9 @@
 			isa = PBXGroup;
 			children = (
 				FCC56AF128A9388500F74307 /* DielectricMaterial.swift */,
-				FCC56AEE28A9387400F74307 /* MetalMaterial.swift */,
 				FCC56AEB28A9386300F74307 /* LambertianMaterial.swift */,
+				FCC56AEE28A9387400F74307 /* MetalMaterial.swift */,
+				FCC56B0D28AA4BC500F74307 /* NoMaterial.swift */,
 			);
 			path = Material;
 			sourceTree = "<group>";
@@ -262,6 +270,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				FCC56B0E28AA4BC500F74307 /* NoMaterial.swift in Sources */,
 				FCC56AFE28A9391400F74307 /* Vector3.swift in Sources */,
 				FCC56B0128A9392B00F74307 /* Real.swift in Sources */,
 				FCC56B0B28A9467C00F74307 /* Canvas.swift in Sources */,
@@ -269,6 +278,7 @@
 				FCC56AE628A8617F00F74307 /* Scenes.swift in Sources */,
 				FC225C7B28A6DC970016C3D5 /* ContentView.swift in Sources */,
 				FCC56AEF28A9387400F74307 /* MetalMaterial.swift in Sources */,
+				FCC56B1128AACBC500F74307 /* Random.swift in Sources */,
 				FCC56B0428A9394700F74307 /* RenderController.swift in Sources */,
 				FCC56AEC28A9386300F74307 /* LambertianMaterial.swift in Sources */,
 				FC225C8828A6DCFE0016C3D5 /* Renderer.swift in Sources */,
@@ -283,6 +293,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				FCC56B0F28AA4BC500F74307 /* NoMaterial.swift in Sources */,
 				FCC56AFF28A9391400F74307 /* Vector3.swift in Sources */,
 				FCC56B0228A9392B00F74307 /* Real.swift in Sources */,
 				FCC56B0C28A9467C00F74307 /* Canvas.swift in Sources */,
@@ -290,6 +301,7 @@
 				FCC56AE728A8617F00F74307 /* Scenes.swift in Sources */,
 				FC225C7C28A6DC970016C3D5 /* ContentView.swift in Sources */,
 				FCC56AF028A9387400F74307 /* MetalMaterial.swift in Sources */,
+				FCC56B1228AACBC500F74307 /* Random.swift in Sources */,
 				FCC56B0528A9394700F74307 /* RenderController.swift in Sources */,
 				FCC56AED28A9386300F74307 /* LambertianMaterial.swift in Sources */,
 				FC225C8928A6DCFE0016C3D5 /* Renderer.swift in Sources */,
@@ -513,6 +525,7 @@
 				DEVELOPMENT_TEAM = DBK476475Y;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
+				GCC_OPTIMIZATION_LEVEL = fast;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (

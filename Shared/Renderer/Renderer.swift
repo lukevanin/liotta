@@ -11,30 +11,51 @@ typealias Color = Vector3
 
 
 protocol Material {
-    func scatter(inputRay: Ray, hit: HitRecord) -> ScatterRay?
+    func scatter(inputRay: Ray, hit: HitRecord, result: ScatterRay) -> Bool
+    func copy() -> AnyMaterial
 }
 
 
-struct ScatterRay {
-    var ray: Ray
-    var attenuation: Vector3
+final class AnyMaterial {
+    
+    private let _scatter: (Ray, HitRecord, ScatterRay) -> Bool
+    private let _copy: () -> AnyMaterial
+    
+    init<T>(_ instance: T) where T: Material {
+        _scatter = instance.scatter
+        _copy = instance.copy
+    }
+    
+    func scatter(inputRay: Ray, hit: HitRecord, result: ScatterRay) -> Bool {
+        _scatter(inputRay, hit, result)
+    }
+    
+    func copy() -> AnyMaterial {
+        _copy()
+    }
 }
 
 
-struct HitRecord {
-    let t: Real
-    let p: Vector3
-    let normal: Vector3
-    let material: Material
+final class ScatterRay {
+    var ray: Ray = Ray(origin: .zero, direction: .zero)
+    var attenuation: Vector3 = .zero
 }
 
 
-struct Ray {
+final class HitRecord {
+    var t: Real = 0
+    var p: Vector3 = .zero
+    var normal: Vector3 = .zero
+    var material: AnyMaterial = AnyMaterial(NoMaterial())
+}
+
+
+final class Ray {
     
     var origin: Vector3
     var direction: Vector3
     
-    init() {
+    convenience init() {
         self.init(origin: .zero, direction: .zero)
     }
     
@@ -50,13 +71,52 @@ struct Ray {
 
 
 protocol Hitable {
-    func hit(ray: Ray, tMin: Real, tMax: Real) -> HitRecord?
+    func hit(ray: Ray, tMin: Real, tMax: Real, result: HitRecord) -> Bool
+    func copy() -> AnyHitable
 }
 
 
-struct RenderScene {
-    var camera: Camera
-    var world: Hitable
+final class AnyHitable {
+    
+    typealias Hit = (Ray, Real, Real, HitRecord) -> Bool
+    typealias Copy = () -> AnyHitable
+    
+    private let _hit: Hit
+    private let _copy: Copy
+    
+    init<T>(_ instance: T) where T: Hitable {
+        _hit = instance.hit
+        _copy = instance.copy
+    }
+    
+    func hit(ray: Ray, tMin: Real, tMax: Real, result: HitRecord) -> Bool {
+        _hit(ray, tMin, tMax, result)
+    }
+    
+    func copy() -> AnyHitable {
+        _copy()
+    }
+}
+
+
+struct Viewport {
+    let width: Int
+    let height: Int
+}
+
+
+final class RenderScene {
+    let camera: Camera
+    let world: AnyHitable
+    
+    init(camera: Camera, world: AnyHitable) {
+        self.camera = camera
+        self.world = world
+    }
+    
+    func copy() -> RenderScene {
+        RenderScene(camera: camera.copy(), world: world.copy())
+    }
 }
 
 
@@ -64,27 +124,39 @@ final class Renderer {
     
     typealias Pixel = UInt32
     
-    struct Configuration {
-        let samplesPerPixel: Int = 10000
-        let samplesPerIteration: Int = 10
-        let maximumBounces: Int = 50
+    final class Configuration {
+        var samplesPerPixel: Int = 10000
+        var samplesPerIteration: Int = 1
+        var maximumBounces: Int = 50
+        
+        func copy() -> Configuration {
+            let output = Configuration()
+            output.samplesPerPixel = samplesPerPixel
+            output.samplesPerIteration = samplesPerIteration
+            output.maximumBounces = maximumBounces
+            return output
+        }
     }
     
     private(set) var sampleCount: Int = 0
+    private(set) var renderCount: Int = 0
     private(set) var rayCount: Int = 0
     let canvas: Canvas
 
-    private var scene: RenderScene
-    private var startTime: Date = Date()
+    private var samplesPerPixel: Real
+    private let scene: RenderScene
+    private let hit = HitRecord()
+    private let bounce = ScatterRay()
     private let configuration: Configuration
+    private let random = RandomNumberGenerator()
     
-    init(scene: RenderScene, canvas: Canvas, configuration: Configuration) {
+    init(samplesPerPixel: Double, scene: RenderScene, canvas: Canvas, configuration: Configuration) {
         self.scene = scene
         self.configuration = configuration
         self.canvas = canvas
-        startTime = Date()
+        self.samplesPerPixel = samplesPerPixel
+        self.renderCount = 0
         sampleCount = 0
-        rayCount = 0
     }
     
     func render() {
@@ -94,37 +166,45 @@ final class Renderer {
         }
         let w = canvas.width
         let h = canvas.height
-        for y in 0 ..< h {
-            for x in 0 ..< w {
-                var accumulatedColor = canvas.getPixel(x: x, y: y)
-                for _ in 0 ..< configuration.samplesPerIteration {
-                    let dx = Real.random()
-                    let dy = Real.random()
+        let samples = Int(ceil(samplesPerPixel))
+        for _ in 0 ..< samples {
+            let dx = random.next()
+            let dy = random.next()
+            for y in 0 ..< h {
+                for x in 0 ..< w {
+                    var accumulatedColor = canvas.getPixel(x: x, y: y)
                     let u = (Real(x) + dx) / Real(w)
                     let v = (Real(y) + dy) / Real(h)
                     let ray = scene.camera.rayAt(u: u, v: v)
                     accumulatedColor += color(ray: ray, world: scene.world)
+                    canvas.setPixel(x: x, y: y, color: accumulatedColor)
                 }
-                canvas.setPixel(x: x, y: y, color: accumulatedColor)
             }
         }
-        sampleCount += configuration.samplesPerIteration
-        // logStats()
+        
+        sampleCount += samples // configuration.samplesPerIteration
+//        samplesPerPixel = 1.5
+        renderCount += 1
     }
     
-    private func color(ray: Ray, world: Hitable, depth: Int = 0) -> Color {
-        rayCount += 1
-        if let hit = world.hit(ray: ray, tMin: 0.001, tMax: .greatestFiniteMagnitude), depth < configuration.maximumBounces {
-            if let output = hit.material.scatter(inputRay: ray, hit: hit) {
-                return output.attenuation * color(ray: output.ray, world: world, depth: depth + 1)
+    private func color(ray primaryRay: Ray, world: AnyHitable) -> Color {
+        var attenuation = Vector3.one
+        var depth = 0
+        var ray = primaryRay
+        while depth < configuration.maximumBounces {
+            rayCount += 1
+            guard world.hit(ray: ray, tMin: 0.001, tMax: .greatestFiniteMagnitude, result: hit) else {
+                // Ray did not hit anything. Use the background sky color.
+                return attenuation * sky(ray: ray)
             }
-            else {
+            guard hit.material.scatter(inputRay: ray, hit: hit, result: bounce) else {
                 return .zero
             }
+            ray = bounce.ray
+            attenuation = attenuation * bounce.attenuation
+            depth += 1
         }
-        else {
-            return sky(ray: ray)
-        }
+        return .zero
     }
 
     private func sky(ray: Ray) -> Color {
@@ -133,15 +213,5 @@ final class Renderer {
         let unitDirection = simd_normalize(ray.direction)
         let t = 0.5 * (unitDirection.y + 1.0)
         return ((1 - t) * colorA) + (t * colorB)
-    }
-    
-    func logStats() {
-        let endTime = Date()
-        let elapsedTime = endTime.timeIntervalSince(startTime)
-        let raysPerSecond = Real(rayCount) / elapsedTime
-        logger.info("Samples per pixel \(self.sampleCount.formatted())")
-        logger.info("Render time \(elapsedTime.formatted()) seconds")
-        logger.info("Primary rays \(self.rayCount.formatted())")
-        logger.info("Rays per second \(raysPerSecond.formatted())")
     }
 }

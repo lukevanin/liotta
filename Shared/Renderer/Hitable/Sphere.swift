@@ -2,19 +2,33 @@ import Foundation
 import simd
 
 
-struct Sphere: Hitable {
-    var center: Vector3
-    var radius: Real
-    var material: Material
+final class Sphere: Hitable {
     
-    func hit(ray: Ray, tMin: Real, tMax: Real) -> HitRecord? {
+    private let center: Vector3
+    private let radius: Real
+    private let material: AnyMaterial
+    
+    init(
+        center: Vector3,
+        radius: Real,
+        material: AnyMaterial
+    ) {
+        self.center = center
+        self.radius = radius
+        self.material = material
+    }
+    
+    func hit(ray: Ray, tMin: Real, tMax: Real, result: HitRecord) -> Bool {
         let oc = ray.origin - center
         let a = simd_dot(ray.direction, ray.direction)
         let b = simd_dot(oc, ray.direction)
+        if b > 0 {
+            return false
+        }
         let c = simd_dot(oc, oc) - (radius * radius)
         let discriminant = (b * b) - (a * c)
         guard discriminant > 0 else {
-            return nil
+            return false
         }
         
         let s = sqrt(discriminant)
@@ -23,25 +37,33 @@ struct Sphere: Hitable {
         temp = (-b - s) / a
         if temp > tMin && temp < tMax {
             let p = ray.point(at: temp)
-            return HitRecord(
-                t: temp,
-                p: p,
-                normal: simd_normalize((p - center) / radius),
-                material: material
-            )
+            result.t = temp
+            result.p = p
+            result.normal = simd_normalize((p - center) / radius)
+            result.material = material
+            return true
         }
         
         temp = (-b + s) / a
         if temp > tMin && temp < tMax {
             let p = ray.point(at: temp)
-            return HitRecord(
-                t: temp,
-                p: p,
-                normal: simd_normalize((p - center) / radius),
-                material: material
-            )
+            result.t = temp
+            result.p = p
+            result.normal = simd_normalize((p - center) / radius)
+            result.material = material
+            return true
         }
         
-        return nil
+        return false
+    }
+    
+    func copy() -> AnyHitable {
+        AnyHitable(
+            Sphere(
+                center: center,
+                radius: radius,
+                material: material.copy()
+            )
+        )
     }
 }

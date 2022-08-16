@@ -2,11 +2,16 @@ import Foundation
 import simd
 
 
-struct DielectricMaterial: Material {
+final class DielectricMaterial: Material {
     
-    var refractionIndex: Real
+    private let refractionIndex: Real
+    private let random = RandomNumberGenerator()
     
-    func scatter(inputRay: Ray, hit: HitRecord) -> ScatterRay? {
+    init(refractionIndex: Real) {
+        self.refractionIndex = refractionIndex
+    }
+    
+    func scatter(inputRay: Ray, hit: HitRecord, result: ScatterRay) -> Bool {
         let attenuation = Vector3(x: 1.0, y: 1.0, z: 1.0)
         let outwardNormal: Vector3
         let niOverNt: Real
@@ -24,34 +29,41 @@ struct DielectricMaterial: Material {
             cosine = -rayDotNormal
         }
         
-        if let refracted = Vector3.refract(v: inputRay.direction, n: outwardNormal, niOverNt: niOverNt) {
+        let refracted = simd_refract(inputRay.direction, outwardNormal, niOverNt)
+        if refracted != .zero {
             let reflectionProbability = schlick(cosine: cosine)
-            if Real.random() < reflectionProbability {
+            if random.next() < reflectionProbability {
                 let reflected = simd_reflect(inputRay.direction, hit.normal)
-                return ScatterRay(
-                    ray: Ray(origin: hit.p, direction: simd_normalize(reflected)),
-                    attenuation: attenuation
-                )
+                result.ray.origin = hit.p
+                result.ray.direction = simd_normalize(reflected)
+                result.attenuation = attenuation
             }
             else {
-                return ScatterRay(
-                    ray: Ray(origin: hit.p, direction: simd_normalize(refracted)),
-                    attenuation: attenuation
-                )
+                result.ray.origin = hit.p
+                result.ray.direction = simd_normalize(refracted)
+                result.attenuation = attenuation
             }
         }
         else {
             let reflected = simd_reflect(inputRay.direction, hit.normal)
-            return ScatterRay(
-                ray: Ray(origin: hit.p, direction: simd_normalize(reflected)),
-                attenuation: attenuation
-            )
+            result.ray.origin = hit.p
+            result.ray.direction = simd_normalize(reflected)
+            result.attenuation = attenuation
         }
+        return true
     }
     
     private func schlick(cosine: Real) -> Real {
         let r = (1 - refractionIndex) / (1 + refractionIndex)
         let r0 = r * r
         return r0 + (1 - r0) * pow((1 - cosine), 5)
+    }
+    
+    func copy() -> AnyMaterial {
+        AnyMaterial(
+            DielectricMaterial(
+                refractionIndex: refractionIndex
+            )
+        )
     }
 }
