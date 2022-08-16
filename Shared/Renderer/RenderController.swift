@@ -36,9 +36,8 @@ final class RenderWorker {
             let configuration = configuration.copy()
             let canvas = Canvas(width: viewport.width, height: viewport.height)
             let output = Canvas(width: viewport.width, height: viewport.height)
-            let n = Real(id + 2)
             let renderer = Renderer(
-                samplesPerPixel: (n * n) * 1,
+                sampleFactor: id + 1,
                 scene: scene,
                 canvas: canvas,
                 configuration: configuration
@@ -145,20 +144,19 @@ final class RenderManager {
         // Copy the temp canvas to the output canvas. For each pixel, compute
         // the average over the number of renders.
 //        var minColor = +Real.greatestFiniteMagnitude
-//        var maxColor = -Real.greatestFiniteMagnitude
+        var maxColor = -Real.greatestFiniteMagnitude
         for i in 0 ..< outputCanvas.buffer.count {
-//            let color = tempCanvas.buffer[i] / Real(renderCount)
-//            minColor = min(minColor, color.x, color.y, color.z)
-//            maxColor = max(maxColor, color.x, color.y, color.z)
             let color = tempCanvas.buffer[i] / Real(totalSamples)
+//            minColor = min(minColor, color.x, color.y, color.z)
+            maxColor = max(maxColor, color.x, color.y, color.z)
+//            let color = tempCanvas.buffer[i] / Real(totalSamples)
             outputCanvas.buffer[i] = color
         }
         
-//        let colorRange = 1 / (maxColor - minColor)
-//        for i in 0 ..< outputCanvas.buffer.count {
-//            let color = (outputCanvas.buffer[i] - minColor) * colorRange
-//            outputCanvas.buffer[i] = color
-//        }
+        let colorRange = 1 / maxColor
+        for i in 0 ..< outputCanvas.buffer.count {
+            outputCanvas.buffer[i] *= colorRange
+        }
         
         let image = makeImage()
         

@@ -19,7 +19,8 @@ struct LiottaApp: App {
 //            scene: makeChapter10Scene(),
 //            scene: makeChapter11Scene(),
 //            scene: makeChapter12Scene(),
-            scene: makeChapter12Scene2(),
+//            scene: makeChapter12Scene2(),
+            scene: makeLightingTestScene(),
             viewport: Viewport(width: 400, height: 200),
             configuration: {
                 let configuration = Renderer.Configuration()

@@ -25,9 +25,10 @@ final class RandomNumberGenerator {
     private var xy = Real(0)
 
     func next() -> Real {
-        xy += 1
-        let v = simd_double2(xy * phi, xy)
-        return simd_fract(tan(simd_length(v) * seed) * xy)
+//        xy += 1
+//        let v = simd_double2(xy * phi, xy)
+//        return simd_fract(tan(simd_length(v) * seed) * xy)
+        drand48()
     }
 }
 

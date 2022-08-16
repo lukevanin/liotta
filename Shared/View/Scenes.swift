@@ -550,3 +550,126 @@ func makeChapter12Scene2() -> RenderScene {
         world: AnyHitable(list)
     )
 }
+
+
+func makeLightingTestScene() -> RenderScene {
+    
+    let whiteLightMaterial = MonochromeLightMaterial(
+        color: Color(x: 5, y: 5, z: 5)
+    )
+    
+    let redLightMaterial = MonochromeLightMaterial(
+        color: Color(x: 5, y: 4, z: 4)
+    )
+    
+    let greenLightMaterial = MonochromeLightMaterial(
+        color: Color(x: 4, y: 5, z: 4)
+    )
+    
+    let blueLightMaterial = MonochromeLightMaterial(
+        color: Color(x: 4, y: 4, z: 5)
+    )
+    
+    let yellowLightMaterial = MonochromeLightMaterial(
+        color: Color(x: 5, y: 5, z: 4)
+    )
+
+    let whiteMaterial = LambertianMaterial(
+        albedo: Vector3(x: 0.9, y: 0.9, z: 0.9)
+    )
+    
+    let silverMaterial = MetalMaterial(
+        albedo: Vector3(x: 0.9, y: 0.9, z: 0.9),
+        fuzz: 0.1
+    )
+    
+    let glassMaterial = DielectricMaterial(
+        refractionIndex: 1.5
+    )
+    
+    let skyEnvironment = SkyGradientEnvironment(
+        colorA: Color(x: 0.1, y: 0.1, z: 0.3),
+        colorB: Color(x: 0.25, y: 0.35, z: 0.5)
+    )
+    
+//    let skyEnvironment = SkyGradientEnvironment()
+
+    let list = HitableList()
+    list.append(
+        Sphere(
+            center: Vector3(x: 0, y: -1000, z: 0),
+            radius: 1000,
+            material: whiteMaterial.copy()
+        ).copy()
+    )
+    
+    let center = Vector3(x: 4, y: 1, z: 0)
+    list.append(
+        Sphere(
+            center: center,
+            radius: 1.0,
+            material: glassMaterial.copy()
+        ).copy()
+    )
+    list.append(
+        Sphere(
+            center: center,
+            radius: 0.9,
+            material: whiteMaterial.copy()
+        ).copy()
+    )
+
+    let reference = Vector3(x: 4, y: 0.2, z: 0)
+    for a in -5 ..< 5 {
+        for b in -5 ..< 5 {
+            var center = Vector3(
+                x: Real(a) * 1.5 + 0.9 * .random(),
+                y: 0.4, // + (0.5 * .random()),
+                z: Real(b) * 1.5 + 0.9 * .random()
+            )
+            if simd_length(center - reference) > 0.9 {
+                let chooseMaterial = Real.random()
+                let material: AnyMaterial
+                if chooseMaterial < 0.8 {
+                    let color = Int(floor(Real.random() * 5))
+                    switch color {
+                    case 0:
+                        material = redLightMaterial.copy()
+                    case 1:
+                        material = greenLightMaterial.copy()
+                    case 2:
+                        material = blueLightMaterial.copy()
+                    case 3:
+                        material = yellowLightMaterial.copy()
+                    default:
+                        material = whiteLightMaterial.copy()
+                    }
+                    center.y = 3.0
+                }
+                else {
+                    material = silverMaterial.copy()
+                }
+                list.append(
+                    Sphere(
+                        center: center,
+                        radius: 0.4,
+                        material: material
+                    ).copy()
+                )
+            }
+        }
+    }
+    return RenderScene(
+        camera: Camera(
+            lookFrom: Vector3(x: 13, y: 2, z: 3),
+            lookAt: Vector3(x: 0, y: 0, z: 0),
+            vup: Vector3(x: 0, y: 1, z: 0),
+            fieldOfView: 20,
+            aspectRatio: 200.0 / 100.0,
+            aperature: 0.1,
+            focusDistance: 10
+        ),
+        sky: skyEnvironment.copy(),
+        world: list.copy()
+    )
+}

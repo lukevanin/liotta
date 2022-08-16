@@ -15,6 +15,20 @@
 		FC225C7E28A6DC970016C3D5 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = FC225C6B28A6DC970016C3D5 /* Assets.xcassets */; };
 		FC225C8828A6DCFE0016C3D5 /* Renderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC225C8728A6DCFE0016C3D5 /* Renderer.swift */; };
 		FC225C8928A6DCFE0016C3D5 /* Renderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC225C8728A6DCFE0016C3D5 /* Renderer.swift */; };
+		FC5C580628AC1F8400EFBA92 /* RenderScene.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC5C580528AC1F8400EFBA92 /* RenderScene.swift */; };
+		FC5C580728AC1F8400EFBA92 /* RenderScene.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC5C580528AC1F8400EFBA92 /* RenderScene.swift */; };
+		FC5C580928AC1F9400EFBA92 /* Sky.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC5C580828AC1F9400EFBA92 /* Sky.swift */; };
+		FC5C580A28AC1F9400EFBA92 /* Sky.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC5C580828AC1F9400EFBA92 /* Sky.swift */; };
+		FC5C580C28AC1FA400EFBA92 /* Material.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC5C580B28AC1FA400EFBA92 /* Material.swift */; };
+		FC5C580D28AC1FA400EFBA92 /* Material.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC5C580B28AC1FA400EFBA92 /* Material.swift */; };
+		FC5C580F28AC1FC500EFBA92 /* Hitable.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC5C580E28AC1FC500EFBA92 /* Hitable.swift */; };
+		FC5C581028AC1FC500EFBA92 /* Hitable.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC5C580E28AC1FC500EFBA92 /* Hitable.swift */; };
+		FC5C581328AC203900EFBA92 /* SkyGradientEnvironment.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC5C581228AC203900EFBA92 /* SkyGradientEnvironment.swift */; };
+		FC5C581428AC203900EFBA92 /* SkyGradientEnvironment.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC5C581228AC203900EFBA92 /* SkyGradientEnvironment.swift */; };
+		FC5C581628AC207400EFBA92 /* MonochromeEnvironment.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC5C581528AC207400EFBA92 /* MonochromeEnvironment.swift */; };
+		FC5C581728AC207400EFBA92 /* MonochromeEnvironment.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC5C581528AC207400EFBA92 /* MonochromeEnvironment.swift */; };
+		FC5C581928AC25F600EFBA92 /* MonochromeLightMaterial.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC5C581828AC25F600EFBA92 /* MonochromeLightMaterial.swift */; };
+		FC5C581A28AC25F600EFBA92 /* MonochromeLightMaterial.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC5C581828AC25F600EFBA92 /* MonochromeLightMaterial.swift */; };
 		FCC56AE628A8617F00F74307 /* Scenes.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCC56AE528A8617F00F74307 /* Scenes.swift */; };
 		FCC56AE728A8617F00F74307 /* Scenes.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCC56AE528A8617F00F74307 /* Scenes.swift */; };
 		FCC56AE928A9363B00F74307 /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = FCC56AE828A9363B00F74307 /* README.md */; };
@@ -53,6 +67,13 @@
 		FC225C7628A6DC970016C3D5 /* Liotta.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Liotta.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		FC225C7828A6DC970016C3D5 /* macOS.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = macOS.entitlements; sourceTree = "<group>"; };
 		FC225C8728A6DCFE0016C3D5 /* Renderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Renderer.swift; sourceTree = "<group>"; };
+		FC5C580528AC1F8400EFBA92 /* RenderScene.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RenderScene.swift; sourceTree = "<group>"; };
+		FC5C580828AC1F9400EFBA92 /* Sky.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sky.swift; sourceTree = "<group>"; };
+		FC5C580B28AC1FA400EFBA92 /* Material.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Material.swift; sourceTree = "<group>"; };
+		FC5C580E28AC1FC500EFBA92 /* Hitable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Hitable.swift; sourceTree = "<group>"; };
+		FC5C581228AC203900EFBA92 /* SkyGradientEnvironment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SkyGradientEnvironment.swift; sourceTree = "<group>"; };
+		FC5C581528AC207400EFBA92 /* MonochromeEnvironment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MonochromeEnvironment.swift; sourceTree = "<group>"; };
+		FC5C581828AC25F600EFBA92 /* MonochromeLightMaterial.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MonochromeLightMaterial.swift; sourceTree = "<group>"; };
 		FCC56AE528A8617F00F74307 /* Scenes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Scenes.swift; sourceTree = "<group>"; };
 		FCC56AE828A9363B00F74307 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		FCC56AEB28A9386300F74307 /* LambertianMaterial.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LambertianMaterial.swift; sourceTree = "<group>"; };
@@ -124,6 +145,15 @@
 			path = macOS;
 			sourceTree = "<group>";
 		};
+		FC5C581128AC201800EFBA92 /* Environment */ = {
+			isa = PBXGroup;
+			children = (
+				FC5C581228AC203900EFBA92 /* SkyGradientEnvironment.swift */,
+				FC5C581528AC207400EFBA92 /* MonochromeEnvironment.swift */,
+			);
+			path = Environment;
+			sourceTree = "<group>";
+		};
 		FCC56B0628A9396100F74307 /* View */ = {
 			isa = PBXGroup;
 			children = (
@@ -137,15 +167,20 @@
 		FCC56B0728A9396900F74307 /* Renderer */ = {
 			isa = PBXGroup;
 			children = (
-				FC225C8728A6DCFE0016C3D5 /* Renderer.swift */,
 				FCC56B0328A9394700F74307 /* RenderController.swift */,
+				FC225C8728A6DCFE0016C3D5 /* Renderer.swift */,
+				FC5C580E28AC1FC500EFBA92 /* Hitable.swift */,
+				FC5C580828AC1F9400EFBA92 /* Sky.swift */,
+				FC5C580B28AC1FA400EFBA92 /* Material.swift */,
+				FC5C580528AC1F8400EFBA92 /* RenderScene.swift */,
 				FCC56B0A28A9467C00F74307 /* Canvas.swift */,
 				FCC56AFD28A9391400F74307 /* Vector3.swift */,
 				FCC56B0028A9392B00F74307 /* Real.swift */,
 				FCC56B1028AACBC500F74307 /* Random.swift */,
 				FCC56AFA28A938E700F74307 /* Camera.swift */,
-				FCC56B0928A9398500F74307 /* Material */,
 				FCC56B0828A9397700F74307 /* Hitable */,
+				FC5C581128AC201800EFBA92 /* Environment */,
+				FCC56B0928A9398500F74307 /* Material */,
 			);
 			path = Renderer;
 			sourceTree = "<group>";
@@ -165,6 +200,7 @@
 				FCC56AF128A9388500F74307 /* DielectricMaterial.swift */,
 				FCC56AEB28A9386300F74307 /* LambertianMaterial.swift */,
 				FCC56AEE28A9387400F74307 /* MetalMaterial.swift */,
+				FC5C581828AC25F600EFBA92 /* MonochromeLightMaterial.swift */,
 				FCC56B0D28AA4BC500F74307 /* NoMaterial.swift */,
 			);
 			path = Material;
@@ -270,13 +306,18 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				FC5C581928AC25F600EFBA92 /* MonochromeLightMaterial.swift in Sources */,
 				FCC56B0E28AA4BC500F74307 /* NoMaterial.swift in Sources */,
+				FC5C580C28AC1FA400EFBA92 /* Material.swift in Sources */,
+				FC5C580628AC1F8400EFBA92 /* RenderScene.swift in Sources */,
 				FCC56AFE28A9391400F74307 /* Vector3.swift in Sources */,
 				FCC56B0128A9392B00F74307 /* Real.swift in Sources */,
 				FCC56B0B28A9467C00F74307 /* Canvas.swift in Sources */,
+				FC5C581628AC207400EFBA92 /* MonochromeEnvironment.swift in Sources */,
 				FCC56AF828A938D800F74307 /* HitableList.swift in Sources */,
 				FCC56AE628A8617F00F74307 /* Scenes.swift in Sources */,
 				FC225C7B28A6DC970016C3D5 /* ContentView.swift in Sources */,
+				FC5C580F28AC1FC500EFBA92 /* Hitable.swift in Sources */,
 				FCC56AEF28A9387400F74307 /* MetalMaterial.swift in Sources */,
 				FCC56B1128AACBC500F74307 /* Random.swift in Sources */,
 				FCC56B0428A9394700F74307 /* RenderController.swift in Sources */,
@@ -286,6 +327,8 @@
 				FCC56AF228A9388500F74307 /* DielectricMaterial.swift in Sources */,
 				FCC56AF528A9389800F74307 /* Sphere.swift in Sources */,
 				FC225C7928A6DC970016C3D5 /* LiottaApp.swift in Sources */,
+				FC5C580928AC1F9400EFBA92 /* Sky.swift in Sources */,
+				FC5C581328AC203900EFBA92 /* SkyGradientEnvironment.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -293,13 +336,18 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				FC5C581A28AC25F600EFBA92 /* MonochromeLightMaterial.swift in Sources */,
 				FCC56B0F28AA4BC500F74307 /* NoMaterial.swift in Sources */,
+				FC5C580D28AC1FA400EFBA92 /* Material.swift in Sources */,
+				FC5C580728AC1F8400EFBA92 /* RenderScene.swift in Sources */,
 				FCC56AFF28A9391400F74307 /* Vector3.swift in Sources */,
 				FCC56B0228A9392B00F74307 /* Real.swift in Sources */,
 				FCC56B0C28A9467C00F74307 /* Canvas.swift in Sources */,
+				FC5C581728AC207400EFBA92 /* MonochromeEnvironment.swift in Sources */,
 				FCC56AF928A938D800F74307 /* HitableList.swift in Sources */,
 				FCC56AE728A8617F00F74307 /* Scenes.swift in Sources */,
 				FC225C7C28A6DC970016C3D5 /* ContentView.swift in Sources */,
+				FC5C581028AC1FC500EFBA92 /* Hitable.swift in Sources */,
 				FCC56AF028A9387400F74307 /* MetalMaterial.swift in Sources */,
 				FCC56B1228AACBC500F74307 /* Random.swift in Sources */,
 				FCC56B0528A9394700F74307 /* RenderController.swift in Sources */,
@@ -309,6 +357,8 @@
 				FCC56AF328A9388500F74307 /* DielectricMaterial.swift in Sources */,
 				FCC56AF628A9389800F74307 /* Sphere.swift in Sources */,
 				FC225C7A28A6DC970016C3D5 /* LiottaApp.swift in Sources */,
+				FC5C580A28AC1F9400EFBA92 /* Sky.swift in Sources */,
+				FC5C581428AC203900EFBA92 /* SkyGradientEnvironment.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
