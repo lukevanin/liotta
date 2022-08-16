@@ -2,21 +2,25 @@
 
 A simple path tracer for MacOS written in Swift, based on the book ["Ray Tracing in One Weekend"](https://github.com/RayTracing/raytracing.github.io) by Peter Shirley. 
 
-Example scene from Chapter 12 of the book, rendered with about 240 rays per pixel.
+Example scene from Chapter 12 of the book, after 25 minutes on my 2020 M1 MacBook Pro.
 
-![](Images/Chapter12-6.png)
+![](Images/Chapter12-1600x800-multithread.jpg)
 
 Notes:
 
 Except for some small differences the code is is mostly a direct port of the C++ code in the book:
 
-* SIMD instructions are used for some vector operations, e.g. `simd_dot`, `simd_cross`, `simd_normalize`, `simd_reflect`. 
-One exception is refraction which also uses the code from the book, because I could not get `simd_refract` to work.
-* The example in the book casts a number of rays in randomly varying directions for each pixel, before moving on to the next pixel.
-This renderer uses a different approach where only ray is cast for each pixel to produce a frame, and the average of frames is accumulated over time.
-The renderer outputs an image after N frames, which is displayed in the viewport.
-
-The performance of the ray caster is dependant on the complexity of the scene being rendered. 
-On my 2020 M1 MacBook Pro, the renderer casts ~200k rays per second with simple scenes containing one or two spheres. 
-The final scene from chapter 12 which contains around Z120 spheres casts ~11k rays per second. 
-At this speed, the example image which used ~17 million rays took ~25 minutes to render. 
+* SIMD instructions are used for some vector operations, e.g. `simd_dot`, `simd_cross`, `simd_normalize`, `simd_reflect`, `simd_refract`.
+* The renderer in the book renders a single image at once. 
+This renderer produces the image in multiple passes, outputting the result from each pass so that the progress can be observed.
+* This renderer runs multiple raytracers concurrently in separate threads, and averages the output images  produce the final image.
+Averaging two separate images with M + N samples is equivalent to averaging M + N samples from a single renderer - this property allows rendering to be parallelized relatively easily. 
+Multi-threaded performance scales linearly according to the number of CPU cores.
+On my 2020 M1 MacBook Pro, the renderer casts ~280k rays per second per CPU core with the sample scene from chapter 12.
+Using two CPU cores is twice as fast at about 560k rays per second, and so on as more cores are used.
+When three or more cores are used, the MacBook starts to heat up within a few seconds, as evidenced by the audible increase in the fan speed.
+Two cores seems to be the practical sustainable limit, exhibiting only mild increases in fan whooshing.
+* The book uses `drand48()` to produce random numbers.
+This app only uses this random number generator for creating scenes.
+Rendering noise is generated using a variant of Gold Noise, for extra raw performance and to avoid locking with multi-threading.  
+  
