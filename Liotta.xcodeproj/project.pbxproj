@@ -63,6 +63,8 @@
 		FCC56B0F28AA4BC500F74307 /* NoMaterial.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCC56B0D28AA4BC500F74307 /* NoMaterial.swift */; };
 		FCC56B1128AACBC500F74307 /* Random.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCC56B1028AACBC500F74307 /* Random.swift */; };
 		FCC56B1228AACBC500F74307 /* Random.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCC56B1028AACBC500F74307 /* Random.swift */; };
+		FCFCA59028AD42C50015A69E /* Cube.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCFCA58F28AD42C50015A69E /* Cube.swift */; };
+		FCFCA59128AD42C50015A69E /* Cube.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCFCA58F28AD42C50015A69E /* Cube.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -97,6 +99,7 @@
 		FCC56B0A28A9467C00F74307 /* Canvas.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Canvas.swift; sourceTree = "<group>"; };
 		FCC56B0D28AA4BC500F74307 /* NoMaterial.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoMaterial.swift; sourceTree = "<group>"; };
 		FCC56B1028AACBC500F74307 /* Random.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Random.swift; sourceTree = "<group>"; };
+		FCFCA58F28AD42C50015A69E /* Cube.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Cube.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -202,6 +205,7 @@
 				FC5C581B28ACB73D00EFBA92 /* XYRectangle.swift */,
 				FC5C581E28ACC0C700EFBA92 /* YZRectangle.swift */,
 				FC5C582128ACC20900EFBA92 /* XZRectangle.swift */,
+				FCFCA58F28AD42C50015A69E /* Cube.swift */,
 			);
 			path = Hitable;
 			sourceTree = "<group>";
@@ -332,6 +336,7 @@
 				FC5C581C28ACB73D00EFBA92 /* XYRectangle.swift in Sources */,
 				FC225C7B28A6DC970016C3D5 /* ContentView.swift in Sources */,
 				FC5C580F28AC1FC500EFBA92 /* Hitable.swift in Sources */,
+				FCFCA59028AD42C50015A69E /* Cube.swift in Sources */,
 				FCC56AEF28A9387400F74307 /* MetalMaterial.swift in Sources */,
 				FCC56B1128AACBC500F74307 /* Random.swift in Sources */,
 				FCC56B0428A9394700F74307 /* RenderController.swift in Sources */,
@@ -365,6 +370,7 @@
 				FC5C581D28ACB73D00EFBA92 /* XYRectangle.swift in Sources */,
 				FC225C7C28A6DC970016C3D5 /* ContentView.swift in Sources */,
 				FC5C581028AC1FC500EFBA92 /* Hitable.swift in Sources */,
+				FCFCA59128AD42C50015A69E /* Cube.swift in Sources */,
 				FCC56AF028A9387400F74307 /* MetalMaterial.swift in Sources */,
 				FCC56B1228AACBC500F74307 /* Random.swift in Sources */,
 				FCC56B0528A9394700F74307 /* RenderController.swift in Sources */,

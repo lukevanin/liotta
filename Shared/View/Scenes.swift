@@ -1014,7 +1014,7 @@ func makeLightingRectanglesScene() -> RenderScene {
 }
 
 
-func makeLightingRectanglesScene2() -> RenderScene {
+func makeCubesScene() -> RenderScene {
     
     let lightMaterial = MonochromeLightMaterial(
         color: Color(x: 4.2, y: 4.2, z: 4)
@@ -1025,28 +1025,24 @@ func makeLightingRectanglesScene2() -> RenderScene {
     )
     
     let silverMaterial = MetalMaterial(
-        albedo: Vector3(x: 0.9, y: 0.9, z: 0.9),
+        albedo: Vector3(x: 0.912, y: 0.914, z: 0.920),
         fuzz: 0.1
     )
 
     let goldMaterial = MetalMaterial(
-        albedo: simd_normalize(Vector3(x: 1.2, y: 0.85, z: 0.3)),
+        albedo: simd_normalize(Vector3(x: 0.944, y: 0.776, z: 0.373)),
         fuzz: 0.1
     )
     
     let redMaterial = LambertianMaterial(
-        albedo: Vector3(x: 0.99, y: 0.1, z: 0.1)
+        albedo: Vector3(x: 0.644, y: 0.003, z: 0.005)
     )
 
     let glassMaterial = DielectricMaterial(
         refractionIndex: 1.5
     )
     
-    let skyEnvironment = SkyGradientEnvironment(
-        colorA: Color(x: 0.25, y: 0.35, z: 0.5),
-        colorB: Color(x: 0.0, y: 0.0, z: 0.1)
-    )
-//    let skyEnvironment = SkyGradientEnvironment()
+    let skyEnvironment = SkyGradientEnvironment()
 
     let list = HitableList()
     list.append(
@@ -1061,17 +1057,17 @@ func makeLightingRectanglesScene2() -> RenderScene {
     list.append(
         Sphere(
             center: center,
-            radius: 0.5,
-            material: lightMaterial.copy()
+            radius: 0.9,
+            material: redMaterial.copy()
         ).copy()
     )
-//    list.append(
-//        Sphere(
-//            center: center,
-//            radius: 0.7,
-//            material: glassMaterial.copy()
-//        ).copy()
-//    )
+    list.append(
+        Sphere(
+            center: center,
+            radius: 1.0,
+            material: glassMaterial.copy()
+        ).copy()
+    )
 
     let reference = Vector3(x: 4, y: 0.2, z: 0)
     for a in -5 ..< 5 {
@@ -1088,65 +1084,11 @@ func makeLightingRectanglesScene2() -> RenderScene {
                     y: 0.5 + (.random() * 1.0),
                     z: 0.25
                 )
-                let m = Real.random()
-                if  m < 0.5 {
-                    material = whiteMaterial.copy()
-                }
-                else {
-                    material = silverMaterial.copy()
-                }
+                material = silverMaterial.copy()
                 list.append(
-                    XYRectangle(
-                        x0: center.x - size.x,
-                        x1: center.x + size.x,
-                        y0: center.y,
-                        y1: center.y + size.y,
-                        z: center.z - size.z,
-                        normal: Vector3(x: 0, y: 0, z: +1),
-                        material: material
-                    ).copy()
-                )
-                list.append(
-                    XYRectangle(
-                        x0: center.x - size.x,
-                        x1: center.x + size.x,
-                        y0: center.y,
-                        y1: center.y + size.y,
-                        z: center.z + size.z,
-                        normal: Vector3(x: 0, y: 0, z: -1),
-                        material: material
-                    ).copy()
-                )
-                list.append(
-                    YZRectangle(
-                        x: center.x + size.x,
-                        y0: center.y,
-                        y1: center.y + size.y,
-                        z0: center.z - size.z,
-                        z1: center.z + size.z,
-                        normal: Vector3(x: +1, y: 0, z: 0),
-                        material: material
-                    ).copy()
-                )
-                list.append(
-                    YZRectangle(
-                        x: center.x - size.x,
-                        y0: center.y,
-                        y1: center.y + size.y,
-                        z0: center.z - size.z,
-                        z1: center.z + size.z,
-                        normal: Vector3(x: -1, y: 0, z: 0),
-                        material: material
-                    ).copy()
-                )
-                list.append(
-                    XZRectangle(
-                        x0: center.x - size.x,
-                        x1: center.x + size.x,
-                        y: center.y + size.y,
-                        z0: center.z - size.z,
-                        z1: center.z + size.z,
-                        normal: Vector3(x: 0, y: +1, z: 0),
+                    Cube(
+                        center: center,
+                        size: size,
                         material: material
                     ).copy()
                 )

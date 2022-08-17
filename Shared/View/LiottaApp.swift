@@ -23,8 +23,8 @@ struct LiottaApp: App {
 //            scene: makeLightingScene(),
 //            scene: makeRectanglesScene(),
 //            scene: makeLightingRectanglesScene(),
-            scene: makeLightingRectanglesScene2(),
-            viewport: Viewport(width: 800, height: 400),
+            scene: makeCubesScene(),
+            viewport: Viewport(width: 400, height: 200),
             configuration: {
                 let configuration = Renderer.Configuration()
                 configuration.samplesPerPixel = 10000
