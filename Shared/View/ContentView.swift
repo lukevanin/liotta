@@ -7,7 +7,7 @@ struct ContentView: View {
     var body: some View {
         ZStack {
             if let image = controller.image {
-                Image(image, scale: 0.5, label: Text("An image. There are many like it, but this one is mine."))
+                Image(image, scale: 1.0, label: Text("An image. There are many like it, but this one is mine."))
             }
             else {
                 ProgressView()

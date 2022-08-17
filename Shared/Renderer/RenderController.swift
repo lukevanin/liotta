@@ -144,19 +144,21 @@ final class RenderManager {
         // Copy the temp canvas to the output canvas. For each pixel, compute
         // the average over the number of renders.
 //        var minColor = +Real.greatestFiniteMagnitude
-        var maxColor = -Real.greatestFiniteMagnitude
+//        var maxColor = -Real.greatestFiniteMagnitude
         for i in 0 ..< outputCanvas.buffer.count {
-            let color = tempCanvas.buffer[i] / Real(totalSamples)
+            var color = tempCanvas.buffer[i] / Real(totalSamples)
 //            minColor = min(minColor, color.x, color.y, color.z)
-            maxColor = max(maxColor, color.x, color.y, color.z)
+            color.x = min(color.x, 1)
+            color.y = min(color.y, 1)
+            color.z = min(color.z, 1)
 //            let color = tempCanvas.buffer[i] / Real(totalSamples)
             outputCanvas.buffer[i] = color
         }
         
-        let colorRange = 1 / maxColor
-        for i in 0 ..< outputCanvas.buffer.count {
-            outputCanvas.buffer[i] *= colorRange
-        }
+//        let colorRange = 1 / maxColor
+//        for i in 0 ..< outputCanvas.buffer.count {
+//            outputCanvas.buffer[i] *= colorRange
+//        }
         
         let image = makeImage()
         

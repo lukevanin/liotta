@@ -29,6 +29,12 @@
 		FC5C581728AC207400EFBA92 /* MonochromeEnvironment.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC5C581528AC207400EFBA92 /* MonochromeEnvironment.swift */; };
 		FC5C581928AC25F600EFBA92 /* MonochromeLightMaterial.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC5C581828AC25F600EFBA92 /* MonochromeLightMaterial.swift */; };
 		FC5C581A28AC25F600EFBA92 /* MonochromeLightMaterial.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC5C581828AC25F600EFBA92 /* MonochromeLightMaterial.swift */; };
+		FC5C581C28ACB73D00EFBA92 /* XYRectangle.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC5C581B28ACB73D00EFBA92 /* XYRectangle.swift */; };
+		FC5C581D28ACB73D00EFBA92 /* XYRectangle.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC5C581B28ACB73D00EFBA92 /* XYRectangle.swift */; };
+		FC5C581F28ACC0C700EFBA92 /* YZRectangle.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC5C581E28ACC0C700EFBA92 /* YZRectangle.swift */; };
+		FC5C582028ACC0C700EFBA92 /* YZRectangle.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC5C581E28ACC0C700EFBA92 /* YZRectangle.swift */; };
+		FC5C582228ACC20900EFBA92 /* XZRectangle.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC5C582128ACC20900EFBA92 /* XZRectangle.swift */; };
+		FC5C582328ACC20900EFBA92 /* XZRectangle.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC5C582128ACC20900EFBA92 /* XZRectangle.swift */; };
 		FCC56AE628A8617F00F74307 /* Scenes.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCC56AE528A8617F00F74307 /* Scenes.swift */; };
 		FCC56AE728A8617F00F74307 /* Scenes.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCC56AE528A8617F00F74307 /* Scenes.swift */; };
 		FCC56AE928A9363B00F74307 /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = FCC56AE828A9363B00F74307 /* README.md */; };
@@ -74,6 +80,9 @@
 		FC5C581228AC203900EFBA92 /* SkyGradientEnvironment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SkyGradientEnvironment.swift; sourceTree = "<group>"; };
 		FC5C581528AC207400EFBA92 /* MonochromeEnvironment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MonochromeEnvironment.swift; sourceTree = "<group>"; };
 		FC5C581828AC25F600EFBA92 /* MonochromeLightMaterial.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MonochromeLightMaterial.swift; sourceTree = "<group>"; };
+		FC5C581B28ACB73D00EFBA92 /* XYRectangle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = XYRectangle.swift; sourceTree = "<group>"; };
+		FC5C581E28ACC0C700EFBA92 /* YZRectangle.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = YZRectangle.swift; sourceTree = "<group>"; };
+		FC5C582128ACC20900EFBA92 /* XZRectangle.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = XZRectangle.swift; sourceTree = "<group>"; };
 		FCC56AE528A8617F00F74307 /* Scenes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Scenes.swift; sourceTree = "<group>"; };
 		FCC56AE828A9363B00F74307 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		FCC56AEB28A9386300F74307 /* LambertianMaterial.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LambertianMaterial.swift; sourceTree = "<group>"; };
@@ -190,6 +199,9 @@
 			children = (
 				FCC56AF728A938D800F74307 /* HitableList.swift */,
 				FCC56AF428A9389800F74307 /* Sphere.swift */,
+				FC5C581B28ACB73D00EFBA92 /* XYRectangle.swift */,
+				FC5C581E28ACC0C700EFBA92 /* YZRectangle.swift */,
+				FC5C582128ACC20900EFBA92 /* XZRectangle.swift */,
 			);
 			path = Hitable;
 			sourceTree = "<group>";
@@ -311,17 +323,20 @@
 				FC5C580C28AC1FA400EFBA92 /* Material.swift in Sources */,
 				FC5C580628AC1F8400EFBA92 /* RenderScene.swift in Sources */,
 				FCC56AFE28A9391400F74307 /* Vector3.swift in Sources */,
+				FC5C582228ACC20900EFBA92 /* XZRectangle.swift in Sources */,
 				FCC56B0128A9392B00F74307 /* Real.swift in Sources */,
 				FCC56B0B28A9467C00F74307 /* Canvas.swift in Sources */,
 				FC5C581628AC207400EFBA92 /* MonochromeEnvironment.swift in Sources */,
 				FCC56AF828A938D800F74307 /* HitableList.swift in Sources */,
 				FCC56AE628A8617F00F74307 /* Scenes.swift in Sources */,
+				FC5C581C28ACB73D00EFBA92 /* XYRectangle.swift in Sources */,
 				FC225C7B28A6DC970016C3D5 /* ContentView.swift in Sources */,
 				FC5C580F28AC1FC500EFBA92 /* Hitable.swift in Sources */,
 				FCC56AEF28A9387400F74307 /* MetalMaterial.swift in Sources */,
 				FCC56B1128AACBC500F74307 /* Random.swift in Sources */,
 				FCC56B0428A9394700F74307 /* RenderController.swift in Sources */,
 				FCC56AEC28A9386300F74307 /* LambertianMaterial.swift in Sources */,
+				FC5C581F28ACC0C700EFBA92 /* YZRectangle.swift in Sources */,
 				FC225C8828A6DCFE0016C3D5 /* Renderer.swift in Sources */,
 				FCC56AFB28A938E700F74307 /* Camera.swift in Sources */,
 				FCC56AF228A9388500F74307 /* DielectricMaterial.swift in Sources */,
@@ -341,17 +356,20 @@
 				FC5C580D28AC1FA400EFBA92 /* Material.swift in Sources */,
 				FC5C580728AC1F8400EFBA92 /* RenderScene.swift in Sources */,
 				FCC56AFF28A9391400F74307 /* Vector3.swift in Sources */,
+				FC5C582328ACC20900EFBA92 /* XZRectangle.swift in Sources */,
 				FCC56B0228A9392B00F74307 /* Real.swift in Sources */,
 				FCC56B0C28A9467C00F74307 /* Canvas.swift in Sources */,
 				FC5C581728AC207400EFBA92 /* MonochromeEnvironment.swift in Sources */,
 				FCC56AF928A938D800F74307 /* HitableList.swift in Sources */,
 				FCC56AE728A8617F00F74307 /* Scenes.swift in Sources */,
+				FC5C581D28ACB73D00EFBA92 /* XYRectangle.swift in Sources */,
 				FC225C7C28A6DC970016C3D5 /* ContentView.swift in Sources */,
 				FC5C581028AC1FC500EFBA92 /* Hitable.swift in Sources */,
 				FCC56AF028A9387400F74307 /* MetalMaterial.swift in Sources */,
 				FCC56B1228AACBC500F74307 /* Random.swift in Sources */,
 				FCC56B0528A9394700F74307 /* RenderController.swift in Sources */,
 				FCC56AED28A9386300F74307 /* LambertianMaterial.swift in Sources */,
+				FC5C582028ACC0C700EFBA92 /* YZRectangle.swift in Sources */,
 				FC225C8928A6DCFE0016C3D5 /* Renderer.swift in Sources */,
 				FCC56AFC28A938E700F74307 /* Camera.swift in Sources */,
 				FCC56AF328A9388500F74307 /* DielectricMaterial.swift in Sources */,

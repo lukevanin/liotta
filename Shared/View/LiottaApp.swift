@@ -20,8 +20,11 @@ struct LiottaApp: App {
 //            scene: makeChapter11Scene(),
 //            scene: makeChapter12Scene(),
 //            scene: makeChapter12Scene2(),
-            scene: makeLightingTestScene(),
-            viewport: Viewport(width: 400, height: 200),
+//            scene: makeLightingScene(),
+//            scene: makeRectanglesScene(),
+//            scene: makeLightingRectanglesScene(),
+            scene: makeLightingRectanglesScene2(),
+            viewport: Viewport(width: 800, height: 400),
             configuration: {
                 let configuration = Renderer.Configuration()
                 configuration.samplesPerPixel = 10000

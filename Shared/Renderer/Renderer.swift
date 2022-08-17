@@ -20,7 +20,15 @@ final class HitRecord {
     var t: Real = 0
     var p: Vector3 = .zero
     var normal: Vector3 = .zero
+    var u: Real = 0
+    var v: Real = 0
+    var isFrontFace: Bool = true
     var material: AnyMaterial = AnyMaterial(NoMaterial())
+    
+    func setFaceNormal(ray: Ray, outwardNormal: Vector3) {
+        isFrontFace = simd_dot(ray.direction, outwardNormal) < 0
+        normal = isFrontFace ? outwardNormal : -outwardNormal
+    }
 }
 
 
